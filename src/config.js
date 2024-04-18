@@ -1,41 +1,14 @@
-const CONFIG_KEY = 'ytaf-configuration';
+const CONFIG_KEY = 'taf-configuration';
 
 const configOptions = new Map([
   ['enableAdBlock', { default: true, desc: 'Enable ad blocking' }],
-  ['enableSponsorBlock', { default: true, desc: 'Enable SponsorBlock' }],
   [
-    'enableSponsorBlockSponsor',
-    { default: true, desc: 'Skip sponsor segments' }
-  ],
-  ['enableSponsorBlockIntro', { default: true, desc: 'Skip intro segments' }],
-  ['enableSponsorBlockOutro', { default: true, desc: 'Skip outro segments' }],
-  [
-    'enableSponsorBlockInteraction',
-    {
-      default: true,
-      desc: 'Skip interaction reminder segments'
-    }
+    'disableAnimations',
+    { default: true, desc: 'Disable animations (for better performance)' }
   ],
   [
-    'enableSponsorBlockSelfPromo',
-    {
-      default: true,
-      desc: 'Skip self promotion segments'
-    }
-  ],
-  [
-    'enableSponsorBlockMusicOfftopic',
-    {
-      default: true,
-      desc: 'Skip music and off-topic segments'
-    }
-  ],
-  [
-    'hideLogo',
-    {
-      default: false,
-      desc: 'Hide YouTube logo'
-    }
+    'showBlockingAdsMessage',
+    { default: true, desc: 'Show a message when blocking ads' }
   ]
 ]);
 
