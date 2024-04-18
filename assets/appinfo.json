@@ -1,13 +1,13 @@
 {
-  "id": "youtube.leanback.v4",
-  "version": "0.3.4",
+  "id": "twitch.adamffdev.v1",
+  "version": "1.0.0",
   "vendor": "webosbrew.org",
   "type": "web",
   "main": "index.html",
-  "title": "YouTube AdFree",
-  "icon": "icon.png",
-  "largeIcon": "largeIcon.png",
-  "iconColor": "#ff0000",
+  "title": "Twitch AdFree",
+  "icon": "icon.jpg",
+  "largeIcon": "largeIcon.jpg",
+  "iconColor": "#00000",
   "support360Content": true,
   "checkUpdateOnLaunch": false,
   "accessibility": {
@@ -25,7 +25,7 @@
   "trustLevel": "netcast",
   "privilegedJail": true,
   "supportQuickStart": true,
-  "dialAppName": "YouTube",
+  "dialAppName": "Twitch AdFree",
   "disableBackHistoryAPI": true,
   "supportGIP": true
 }

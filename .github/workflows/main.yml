@@ -28,4 +28,4 @@ jobs:
         with:
           name: youtube_adfree_ipk
           path: |
-            ${{github.workspace}}/youtube.leanback.v4_*_all.ipk
+            ${{github.workspace}}/twitch.adamffdev.v1_*_all.ipk

@@ -35,7 +35,7 @@ In order to autostart an application the following command needs to be executed
 via SSH or Telnet:
 
 ```sh
-luna-send-pub -n 1 'luna://com.webos.service.eim/addDevice' '{"appId":"youtube.leanback.v4","pigImage":"","mvpdIcon":""}'
+luna-send-pub -n 1 'luna://com.webos.service.eim/addDevice' '{"appId":"twitch.adamffdev.v1","pigImage":"","mvpdIcon":""}'
 ```
 
 This will make "YouTube AdFree" display as an eligible input application (next
@@ -49,7 +49,7 @@ constantly in the background, at the cost of increased idle memory usage.
 In order to disable autostart run this:
 
 ```sh
-luna-send-pub -n 1 'luna://com.webos.service.eim/deleteDevice' '{"appId":"youtube.leanback.v4"}'
+luna-send-pub -n 1 'luna://com.webos.service.eim/deleteDevice' '{"appId":"twitch.adamffdev.v1"}'
 ```
 
 ## Building

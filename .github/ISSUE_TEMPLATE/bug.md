@@ -9,29 +9,29 @@ labels: bug, needs triage
 
 WARNING: Please read this carefully to avoid submitting useless bug reports that will be ignored.
 
-If you do not include at least the YTAF version and enough information to determine your webOS version, your issue may be closed without a response.
+If you do not include at least the TAF version and enough information to determine your webOS version, your issue may be closed without a response.
 
 Check existing issues to see if there is already one covering your problem.
 
 The more information you include, the better.
 
-However, you must include *at least* the YTAF (YouTube Ad-Free) version and:
+However, you must include *at least* the TAF (YouTube Ad-Free) version and:
 - webOS version, or
 - firmware version (sometimes referred to as "software version" on TV) *and* either OTAID (preferred) or SoC
 
 -->
 
-## YTAF information
+## TAF information
 
 <!--
 
   Example:
 
-  - YTAF version: 0.3.3
+  - TAF version: 0.3.3
 
 -->
 
-- YTAF version:
+- TAF version:
 
 ## TV information
 
@@ -76,6 +76,6 @@ If you do not have access to those files, the webOS version can always be found 
 
 Describe the bug/issue and how to reproduce it. Provide as much information as possible. For example, include screenshots or links to videos that trigger the problem.
 
-Please also check whether you are able to open the YTAF options panel using the green button and include that information here.
+Please also check whether you are able to open the TAF options panel using the green button and include that information here.
 
 -->
