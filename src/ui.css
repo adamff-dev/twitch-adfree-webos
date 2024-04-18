@@ -1,39 +1,39 @@
-.ytaf-ui-container {
+.taf-ui-container {
   position: absolute;
   top: 10%;
   left: 10%;
   right: 10%;
   bottom: 10%;
-
   background: rgba(0, 0, 0, 0.8);
   color: white;
   border-radius: 20px;
+  border: 2px solid white;
   padding: 20px;
   font-size: 1.5rem;
   z-index: 1000;
 }
 
-.ytaf-ui-container :focus {
-  outline: 4px red solid;
+.taf-ui-container :focus {
+  outline: 4px #ffffff solid;
 }
 
-.ytaf-ui-container h1 {
+.taf-ui-container h1 {
   margin: 0;
   margin-bottom: 0.5em;
   text-align: center;
 }
 
-.ytaf-ui-container input[type='checkbox'] {
+.taf-ui-container input[type='checkbox'] {
   width: 2rem;
   height: 1.5rem;
 }
 
-.ytaf-ui-container label {
+.taf-ui-container label {
   display: block;
   font-size: 2rem;
 }
 
-.ytaf-notification-container {
+.taf-notification-container {
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -41,7 +41,7 @@
   z-index: 1200;
 }
 
-.ytaf-notification-container .message {
+.taf-notification-container .message {
   background: rgba(0, 0, 0, 0.7);
   color: white;
   padding: 1em;
@@ -54,7 +54,7 @@
   float: right;
 }
 
-.ytaf-notification-container .message-hidden {
+.taf-notification-container .message-hidden {
   opacity: 0;
   margin: 0 0.5em;
   padding: 0 1em;
