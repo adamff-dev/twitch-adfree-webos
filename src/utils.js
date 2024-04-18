@@ -8,9 +8,8 @@ export function extractLaunchParams() {
   }
 }
 
-function getYTURL() {
-  const ytURL = new URL('https://www.youtube.com/tv#/');
-  ytURL.searchParams.append('env_forceFullAnimation', '1');
+export function getYTURL() {
+  const ytURL = new URL('https://lg.tv.twitch.tv/');
   return ytURL;
 }
 
