@@ -6,6 +6,7 @@ import {
   configWrite,
   configGetDesc
 } from './config.js';
+import { getYTURL } from './utils.js';
 import './ui.css';
 
 // We handle key events ourselves.
@@ -31,12 +32,12 @@ const colorCodeMap = new Map([
 
 /**
  * Returns the name of the color button associated with a code or null if not a color button.
- * @param {number} charCode KeyboardEvent.charCode property from event
+ * @param {number} keyCode KeyboardEvent.keyCode property from event
  * @returns {string | null} Color name or null
  */
-function getKeyColor(charCode) {
-  if (colorCodeMap.has(charCode)) {
-    return colorCodeMap.get(charCode);
+function getKeyColor(keyCode) {
+  if (colorCodeMap.has(keyCode)) {
+    return colorCodeMap.get(keyCode);
   }
 
   return null;
@@ -69,7 +70,7 @@ function createConfigCheckbox(key) {
 function createOptionsPanel() {
   const elmContainer = document.createElement('div');
 
-  elmContainer.classList.add('ytaf-ui-container');
+  elmContainer.classList.add('taf-ui-container');
   elmContainer.style['display'] = 'none';
   elmContainer.setAttribute('tabindex', 0);
 
@@ -87,9 +88,9 @@ function createOptionsPanel() {
   elmContainer.addEventListener(
     'keydown',
     (evt) => {
-      console.info('Options panel key event:', evt.type, evt.charCode);
+      console.info('Options panel key event:', evt.type, evt.keyCode);
 
-      if (getKeyColor(evt.charCode) === 'green') {
+      if (getKeyColor(evt.keyCode) === 'green') {
         return;
       }
 
@@ -116,28 +117,16 @@ function createOptionsPanel() {
   );
 
   const elmHeading = document.createElement('h1');
-  elmHeading.textContent = 'webOS YouTube Extended';
+  elmHeading.textContent = 'Twitch AdFree Settings';
   elmContainer.appendChild(elmHeading);
 
   elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
-  elmContainer.appendChild(createConfigCheckbox('hideLogo'));
-  elmContainer.appendChild(createConfigCheckbox('enableSponsorBlock'));
+  elmContainer.appendChild(createConfigCheckbox('disableAnimations'));
+  elmContainer.appendChild(createConfigCheckbox('showBlockingAdsMessage'));
 
   const elmBlock = document.createElement('blockquote');
 
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockSponsor'));
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockIntro'));
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockOutro'));
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockInteraction'));
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockSelfPromo'));
-  elmBlock.appendChild(createConfigCheckbox('enableSponsorBlockMusicOfftopic'));
-
   elmContainer.appendChild(elmBlock);
-
-  const elmSponsorLink = document.createElement('div');
-  elmSponsorLink.innerHTML =
-    '<small>Sponsor segments skipping - https://sponsor.ajay.app</small>';
-  elmContainer.appendChild(elmSponsorLink);
 
   return elmContainer;
 }
@@ -170,15 +159,19 @@ function showOptionsPanel(visible) {
 window.ytaf_showOptionsPanel = showOptionsPanel;
 
 const eventHandler = (evt) => {
-  console.info(
-    'Key event:',
-    evt.type,
-    evt.charCode,
-    evt.keyCode,
-    evt.defaultPrevented
-  );
+  console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
 
-  if (getKeyColor(evt.charCode) === 'green') {
+  console.log('evt.keyCode');
+  console.log(evt.keyCode);
+
+  if (evt.keyCode == '461' && window.location != getYTURL()) {
+    window.location = getYTURL();
+    evt.preventDefault();
+    evt.stopPropagation();
+    return;
+  }
+
+  if (getKeyColor(evt.keyCode) === 'green') {
     console.info('Taking over!');
 
     evt.preventDefault();
@@ -198,10 +191,10 @@ document.addEventListener('keypress', eventHandler, true);
 document.addEventListener('keyup', eventHandler, true);
 
 export function showNotification(text, time = 3000) {
-  if (!document.querySelector('.ytaf-notification-container')) {
+  if (!document.querySelector('.taf-notification-container')) {
     console.info('Adding notification container');
     const c = document.createElement('div');
-    c.classList.add('ytaf-notification-container');
+    c.classList.add('taf-notification-container');
     document.body.appendChild(c);
   }
 
@@ -211,7 +204,7 @@ export function showNotification(text, time = 3000) {
   elmInner.classList.add('message');
   elmInner.classList.add('message-hidden');
   elm.appendChild(elmInner);
-  document.querySelector('.ytaf-notification-container').appendChild(elm);
+  document.querySelector('.taf-notification-container').appendChild(elm);
 
   setTimeout(() => {
     elmInner.classList.remove('message-hidden');
@@ -225,21 +218,20 @@ export function showNotification(text, time = 3000) {
 }
 
 /**
- * Initialize ability to hide YouTube logo in top right corner.
+ * Initialize ability to remove animations
  */
-function initHideLogo() {
+function initRemoveAnimations() {
   const style = document.createElement('style');
   document.head.appendChild(style);
 
   /** @type {(hide: boolean) => void} */
   const setHidden = (hide) => {
-    const visibility = hide ? 'hidden' : 'visible';
-    style.textContent = `ytlr-redux-connect-ytlr-logo-entity { visibility: ${visibility}; }`;
+    style.textContent = hide ? '* { transition: none !important; }' : '';
   };
 
-  setHidden(configRead('hideLogo'));
+  setHidden(configRead('disableAnimations'));
 
-  configAddChangeListener('hideLogo', (evt) => {
+  configAddChangeListener('disableAnimations', (evt) => {
     setHidden(evt.detail.newValue);
   });
 }
@@ -274,8 +266,8 @@ function applyUIFixes() {
 }
 
 applyUIFixes();
-initHideLogo();
+initRemoveAnimations();
 
 setTimeout(() => {
-  showNotification('Press [GREEN] to open YTAF configuration screen');
+  showNotification('Press [GREEN] to open TAF configuration screen');
 }, 2000);
