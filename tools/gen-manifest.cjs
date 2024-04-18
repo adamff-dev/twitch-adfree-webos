@@ -21,9 +21,8 @@ fs.writeFileSync(
     type: appinfo.type,
     title: appinfo.title,
     // appDescription: appinfo.appDescription,
-    iconUri:
-      'https://raw.githubusercontent.com/webosbrew/youtube-webos/main/assets/largeIcon.png',
-    sourceUrl: 'https://github.com/webosbrew/youtube-webos',
+    iconUri: 'https://github.com/adamff-dev/twitch-adfree-webos/largeIcon.png',
+    sourceUrl: 'https://github.com/adamff-dev/twitch-adfree-webos',
     rootRequired: false,
     ipkUrl: ipkfile,
     ipkHash: {
