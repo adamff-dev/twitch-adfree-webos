@@ -1,15 +1,16 @@
 const CONFIG_KEY = 'taf-configuration';
 
 const configOptions = new Map([
-  ['enableAdBlock', { default: true, desc: 'Enable ad blocking' }],
+  ['enableAdBlock', { default: true, desc: 'Mute and hide ads' }],
   [
     'disableAnimations',
     { default: true, desc: 'Disable animations (for better performance)' }
   ],
   [
     'showBlockingAdsMessage',
-    { default: true, desc: 'Show a message when blocking ads' }
-  ]
+    { default: true, desc: 'Show a message while blocking ads' }
+  ],
+  ['openFollowing', { default: true, desc: 'Open following tab on startup' }]
 ]);
 
 const defaultConfig = (() => {
@@ -92,7 +93,7 @@ export function configWrite(key, value) {
   window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
 
   configFrags[key].dispatchEvent(
-    new CustomEvent('ytafConfigChange', {
+    new CustomEvent('tafConfigChange', {
       detail: { key, newValue: value, oldValue }
     })
   );
@@ -106,7 +107,7 @@ export function configWrite(key, value) {
 export function configAddChangeListener(key, callback) {
   const frag = configFrags[key];
 
-  frag.addEventListener('ytafConfigChange', callback);
+  frag.addEventListener('tafConfigChange', callback);
 }
 
 /**
@@ -117,5 +118,5 @@ export function configAddChangeListener(key, callback) {
 export function configRemoveChangeListener(key, callback) {
   const frag = configFrags[key];
 
-  frag.removeEventListener('ytafConfigChange', callback);
+  frag.removeEventListener('tafConfigChange', callback);
 }
