@@ -1,12 +1,11 @@
 /*global navigate*/
-import './spatial-navigation-polyfill.js';
+import './lib/spatial-navigation-polyfill.js';
 import {
   configAddChangeListener,
   configRead,
   configWrite,
   configGetDesc
 } from './config.js';
-import { getYTURL } from './utils.js';
 import './ui.css';
 
 // We handle key events ourselves.
@@ -123,6 +122,7 @@ function createOptionsPanel() {
   elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
   elmContainer.appendChild(createConfigCheckbox('disableAnimations'));
   elmContainer.appendChild(createConfigCheckbox('showBlockingAdsMessage'));
+  elmContainer.appendChild(createConfigCheckbox('openFollowing'));
 
   const elmBlock = document.createElement('blockquote');
 
@@ -156,20 +156,13 @@ function showOptionsPanel(visible) {
   }
 }
 
-window.ytaf_showOptionsPanel = showOptionsPanel;
+window.taf_showOptionsPanel = showOptionsPanel;
 
 const eventHandler = (evt) => {
   console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
 
   console.log('evt.keyCode');
   console.log(evt.keyCode);
-
-  if (evt.keyCode == '461' && window.location != getYTURL()) {
-    window.location = getYTURL();
-    evt.preventDefault();
-    evt.stopPropagation();
-    return;
-  }
 
   if (getKeyColor(evt.keyCode) === 'green') {
     console.info('Taking over!');
