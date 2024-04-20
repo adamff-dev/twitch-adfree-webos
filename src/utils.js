@@ -1,3 +1,5 @@
+import { configRead } from './config';
+
 const CONTENT_INTENT_REGEX = /^.+(?=Content)/g;
 
 export function extractLaunchParams() {
@@ -8,8 +10,11 @@ export function extractLaunchParams() {
   }
 }
 
-export function getYTURL() {
-  const ytURL = new URL('https://lg.tv.twitch.tv/');
+export function getTwitchURL() {
+  const openFollowing = configRead('openFollowing');
+  const ytURL = new URL(
+    'https://lg.tv.twitch.tv/' + (openFollowing ? 'following' : undefined)
+  );
   return ytURL;
 }
 
@@ -25,7 +30,7 @@ function concatSearchParams(a, b) {
 
 export function handleLaunch(params) {
   console.info('handleLaunch', params);
-  let ytURL = getYTURL();
+  let ytURL = getTwitchURL();
 
   // We use our custom "target" param, since launches with "contentTarget"
   // parameter do not respect "handlesRelaunch" appinfo option. We still
