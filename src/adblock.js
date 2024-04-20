@@ -3,37 +3,48 @@
 import { configRead } from './config';
 import { showNotification } from './ui';
 
-const AD_CLASSES = [
-  'twitch-stitched-ad',
-  'twitch-ad-quartile',
-  'twitch-stream-source'
-];
-
 const origParse = JSON.parse;
 JSON.parse = function () {
   const r = origParse.apply(this, arguments);
+
   if (!configRead('enableAdBlock')) {
     return r;
   }
 
-  if (r.CLASS && (AD_CLASSES.includes(r.CLASS) || r.CLASS.contains('ad'))) {
+  if (r.CLASS && r.CLASS === 'twitch-stitched-ad' && r.DURATION) {
+    const videoElement = document.querySelector('video');
+
+    videoElement.muted = true;
+    videoElement.style.display = 'none';
+
+    const duration = parseFloat(r.DURATION);
+
     if (configRead('showBlockingAdsMessage')) {
-      showNotification('Blocking ads...');
+      showNotification(
+        'Muting ads for ' + Math.round(duration) + ' seconds',
+        duration * 1000
+      );
     }
-    console.log('BLOCKING ADS');
-    console.log('Blocked request class:', r.CLASS);
-    setNull(r);
+
+    const adPodLength = parseInt(r['X-TV-TWITCH-AD-POD-LENGTH']);
+    const adPodPosition = parseInt(r['X-TV-TWITCH-AD-POD-POSITION']);
+
+    const isSingleAdPod = adPodLength === 1;
+    const isLastAdInPod =
+      adPodLength && adPodPosition && adPodLength - 1 - adPodPosition === 0;
+
+    if (isSingleAdPod || !adPodLength || isLastAdInPod) {
+      setTimeout(
+        () => {
+          videoElement.muted = false;
+          videoElement.style.display = 'unset';
+        },
+        duration * 1000 + 50
+      );
+    }
+
+    return r;
   }
 
   return r;
 };
-
-function setAll(obj, val) {
-  Object.keys(obj).forEach(function (index) {
-    obj[index] = val;
-  });
-}
-
-function setNull(obj) {
-  setAll(obj, null);
-}
