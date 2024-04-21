@@ -18,10 +18,10 @@ This app currently only hides and mutes ads when they appear, without ensuring u
 
 ## Installation
 
-- Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/webosbrew/youtube-webos/releases) for a
+- Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/adamff-dev/twitch-adfree-webos/releases) for a
   prebuilt `.ipk` binary file
 - Use [webOS TV CLI tools](https://webostv.developer.lge.com/develop/tools/cli-installation) -
-  `ares-install youtube...ipk` (for webOS CLI tools configuration see below)
+  `ares-install twitch...ipk` (for webOS CLI tools configuration see below)
 
 ## Configuration
 
