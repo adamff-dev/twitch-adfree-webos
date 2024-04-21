@@ -1,6 +1,6 @@
-# youtube-webos
+# Twitch AdFree
 
-Twitch App with extended functionalities
+Twitch app with extended functionalities
 
 Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
@@ -11,6 +11,10 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 - Open following on startup
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
+
+## Contribution
+
+This app currently only hides and mutes ads when they appear, without ensuring uninterrupted streaming. If you have insights or methods to bypass ads altogether and enhance the streaming experience, we welcome your contributions to this project.
 
 ## Installation
 
