@@ -1,25 +1,19 @@
 # youtube-webos
 
-YouTube App with extended functionalities
+Twitch App with extended functionalities
 
-![Configuration Screen](https://github.com/webosbrew/youtube-webos/blob/main/screenshots/1_sm.jpg?raw=true)
-![Segment Skipped](https://github.com/webosbrew/youtube-webos/blob/main/screenshots/2_sm.jpg?raw=true)
+Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
 ## Features
 
-- Advertisements blocking
-- [SponsorBlock](https://sponsor.ajay.app/) integration
-- [Autostart](#autostart)
+- Ad hiding and muting
+- Disable animations to improve performance
+- Open following on startup
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
 
-## Pre-requisites
-
-- Official YouTube app needs to be uninstalled before installation.
-
 ## Installation
 
-- Use [webOS Homebrew Channel](https://github.com/webosbrew/webos-homebrew-channel) - app is published in official webosbrew repo
 - Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/webosbrew/youtube-webos/releases) for a
   prebuilt `.ipk` binary file
 - Use [webOS TV CLI tools](https://webostv.developer.lge.com/develop/tools/cli-installation) -
@@ -38,7 +32,7 @@ via SSH or Telnet:
 luna-send-pub -n 1 'luna://com.webos.service.eim/addDevice' '{"appId":"twitch.adamffdev.v1","pigImage":"","mvpdIcon":""}'
 ```
 
-This will make "YouTube AdFree" display as an eligible input application (next
+This will make "Twitch AdFree" display as an eligible input application (next
 to HDMI/Live TV, etc...), and, if it was the last selected input, it will be
 automatically launched when turning on the TV.
 
