@@ -12,5 +12,4 @@ document.addEventListener(
   true
 );
 
-import './adblock.js';
 import './ui.js';

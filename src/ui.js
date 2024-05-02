@@ -161,9 +161,6 @@ window.taf_showOptionsPanel = showOptionsPanel;
 const eventHandler = (evt) => {
   console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
 
-  console.log('evt.keyCode');
-  console.log(evt.keyCode);
-
   if (getKeyColor(evt.keyCode) === 'green') {
     console.info('Taking over!');
 
@@ -229,36 +226,37 @@ function initRemoveAnimations() {
   });
 }
 
-function applyUIFixes() {
-  try {
-    const bodyClasses = document.body.classList;
-
-    const observer = new MutationObserver(function bodyClassCallback(
-      _records,
-      _observer
+function hideMuteAds() {
+  // if (!configRead('enableAdBlock')) {
+  //   return;
+  // }
+  const observer = new MutationObserver(function (_mutationsList, _observer) {
+    const videoElement = document.querySelector('video');
+    if (
+      document.querySelector('.r-2dbvay') &&
+      videoElement &&
+      !videoElement.muted
     ) {
-      try {
-        if (bodyClasses.contains('app-quality-root')) {
-          bodyClasses.remove('app-quality-root');
-        }
-      } catch (e) {
-        console.error('error in <body> class observer callback:', e);
-      }
-    });
+      videoElement.muted = true;
+      videoElement.style.display = 'none';
+      showNotification('Muting and hiding ads', 7000);
+    } else if (
+      !document.querySelector('.r-2dbvay') &&
+      videoElement &&
+      videoElement.muted
+    ) {
+      videoElement.muted = false;
+      videoElement.style.display = 'unset';
+    }
+  });
 
-    observer.observe(document.body, {
-      subtree: false,
-      childList: false,
-      attributes: true,
-      attributeFilter: ['class'],
-      characterData: false
-    });
-  } catch (e) {
-    console.error('error setting up <body> class observer:', e);
-  }
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 }
 
-applyUIFixes();
+hideMuteAds();
 initRemoveAnimations();
 
 setTimeout(() => {
