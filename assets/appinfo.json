@@ -1,6 +1,6 @@
 {
   "id": "twitch.adamffdev.v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "vendor": "webosbrew.org",
   "type": "web",
   "main": "index.html",
@@ -17,15 +17,10 @@
     "userAgent": "$browserName$/$browserVersion$ ($platformName$-$platformVersion$), _TV_O18/$firmwareVersion$ (LG, $modelName$, $networkMode$)",
     "allowCrossDomain": true
   },
-  "deeplinkingParams": "{\"contentTarget\":\"v=$CONTENTID\"}",
-  "inAppSearchParams": "{\"target\":\"q=$SEARCH_KEYWORD\"}",
-  "inAppVoiceIntent": "{\"target\":{\"intent\":\"$INTENT\",\"intentParam\":\"$INTENT_PARAM\",\"languageCode\":\"$LANG_CODE\"}}",
-  "supportQueryRouting": "{\"amazonAlexa\":true,\"googleAssistant\":true}",
   "enablePigScreenSaver": false,
-  "trustLevel": "netcast",
   "privilegedJail": true,
   "supportQuickStart": true,
   "dialAppName": "Twitch AdFree",
-  "disableBackHistoryAPI": true,
+  "disableBackHistoryAPI": false,
   "supportGIP": true
 }
