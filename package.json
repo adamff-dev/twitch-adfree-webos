@@ -1,6 +1,6 @@
 {
   "name": "twitch-adfree",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ad-free Twitch app for webOS",
   "type": "module",
   "main": "index.js",
