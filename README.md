@@ -85,6 +85,12 @@ This is partially based on: https://webostv.developer.lge.com/develop/getting-st
 ares-setup-device -a webos -i "username=prisoner" -i "privatekey=/path/to/downloaded/webos_rsa" -i "passphrase=PASSPHRASE" -i "host=TV_IP" -i "port=9922"
 ```
 
+- Modify device info:
+
+```sh
+ares-setup-device --modify emulator --info "host=TV_IP"
+```
+
 ### Configuring webOS TV CLI tools with Homebrew Channel / root
 
 - Enable sshd in Homebrew Channel app
@@ -114,4 +120,10 @@ To jump immediately into some specific video use:
 
 ```sh
 npm run launch -- -p '{"contentTarget":"v=F8PGWLvn1mQ"}'
+```
+
+## Build, deploy and launch
+
+```sh
+pnpm run build && pnpm run package && pnpm run deploy && pnpm run launch
 ```
