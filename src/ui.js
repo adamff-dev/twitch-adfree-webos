@@ -95,18 +95,6 @@ function createOptionsPanel() {
 
       if (evt.keyCode in ARROW_KEY_CODE) {
         navigate(ARROW_KEY_CODE[evt.keyCode]);
-      } else if (evt.keyCode === 13) {
-        // "OK" button
-
-        // The YouTube app generates these "OK" events from clicks (including
-        // with the Magic Remote), and we don't want to send a duplicate click
-        // event for those. It seems isTrusted is only true for "real" events.
-        if (evt.isTrusted === true) {
-          document.activeElement.click();
-        }
-      } else if (evt.keyCode === 27) {
-        // Back button
-        showOptionsPanel(false);
       }
 
       evt.preventDefault();
@@ -118,6 +106,9 @@ function createOptionsPanel() {
   const elmHeading = document.createElement('h1');
   elmHeading.textContent = 'Twitch AdFree Settings';
   elmContainer.appendChild(elmHeading);
+  const elmBody = document.createElement('p');
+  elmBody.textContent = 'Press [GREEN] again to close configuration';
+  elmContainer.appendChild(elmBody);
 
   elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
   elmContainer.appendChild(createConfigCheckbox('disableAnimations'));
@@ -227,26 +218,29 @@ function initRemoveAnimations() {
 }
 
 function hideMuteAds() {
-  // if (!configRead('enableAdBlock')) {
-  //   return;
-  // }
+  if (!configRead('enableAdBlock')) {
+    return;
+  }
   const observer = new MutationObserver(function (_mutationsList, _observer) {
-    const videoElement = document.querySelector('video');
-    if (
-      document.querySelector('.r-2dbvay') &&
-      videoElement &&
-      !videoElement.muted
-    ) {
-      videoElement.muted = true;
-      videoElement.style.display = 'none';
-      showNotification('Muting and hiding ads', 7000);
-    } else if (
-      !document.querySelector('.r-2dbvay') &&
-      videoElement &&
-      videoElement.muted
-    ) {
-      videoElement.muted = false;
-      videoElement.style.display = 'unset';
+    if (document.querySelector('.r-2dbvay')) {
+      const videoElement = document.querySelector('video');
+      if (videoElement) {
+        videoElement.muted = true;
+        videoElement.style.display = 'none';
+        showNotification('Muting and hiding ads', 7000);
+      }
+    } else if (!document.querySelector('.r-2dbvay')) {
+      const videoElement = document.querySelector('video');
+      if (videoElement) {
+        videoElement.muted = false;
+        videoElement.style.display = 'unset';
+      }
+    }
+
+    // Reject cookies if modal is present automatically
+    const rejectCookiesButton = document.querySelector('.gNnPmK .jmTjSc');
+    if (rejectCookiesButton) {
+      rejectCookiesButton.click();
     }
   });
 
@@ -260,5 +254,5 @@ hideMuteAds();
 initRemoveAnimations();
 
 setTimeout(() => {
-  showNotification('Press [GREEN] to open TAF configuration screen');
+  showNotification('Press [GREEN] to open configuration', 5000);
 }, 2000);
