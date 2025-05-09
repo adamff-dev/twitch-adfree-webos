@@ -8,6 +8,13 @@ import {
 } from './config.js';
 import './ui.css';
 
+// Constants for selectors
+const rejectCookiesSelector =
+  '[role="dialog"] > div:last-child button:first-child';
+const acceptAdultContentButtonSelector =
+  'div:has(svg[role="presentation"]) > div:last-child button:first-child';
+const bannerAdSelector = '.r-2dbvay';
+
 // We handle key events ourselves.
 window.__spatialNavigation__.keyMode = 'NONE';
 
@@ -107,7 +114,7 @@ function createOptionsPanel() {
   elmHeading.textContent = 'Twitch AdFree Settings';
   elmContainer.appendChild(elmHeading);
   const elmBody = document.createElement('p');
-  elmBody.textContent = 'Press [GREEN] again to close configuration';
+  elmBody.textContent = 'Press [GREEN] button again to close configuration';
   elmContainer.appendChild(elmBody);
 
   elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
@@ -221,26 +228,42 @@ function hideMuteAds() {
   if (!configRead('enableAdBlock')) {
     return;
   }
-  const observer = new MutationObserver(function (_mutationsList, _observer) {
-    if (document.querySelector('.r-2dbvay')) {
-      const videoElement = document.querySelector('video');
-      if (videoElement) {
+
+  const observer = new MutationObserver(() => {
+    const adElement = document.querySelector(bannerAdSelector);
+    const videoElement = document.querySelector('video');
+
+    if (videoElement) {
+      const isAdVisible = !!adElement;
+      const shouldMute =
+        isAdVisible &&
+        (!videoElement.muted || videoElement.style.display !== 'none');
+
+      if (shouldMute) {
         videoElement.muted = true;
+        videoElement.currentTime = videoElement.duration;
         videoElement.style.display = 'none';
         showNotification('Muting and hiding ads', 7000);
-      }
-    } else if (!document.querySelector('.r-2dbvay')) {
-      const videoElement = document.querySelector('video');
-      if (videoElement) {
+      } else {
         videoElement.muted = false;
-        videoElement.style.display = 'unset';
+        videoElement.style.display = '';
       }
     }
 
-    // Reject cookies if modal is present automatically
-    const rejectCookiesButton = document.querySelector('.gNnPmK .jmTjSc');
+    // Auto-reject cookies if the modal is present
+    const rejectCookiesButton = document.querySelector(rejectCookiesSelector);
     if (rejectCookiesButton) {
+      showNotification('Skipping cookie consent', 7000);
       rejectCookiesButton.click();
+    }
+
+    // Auto-accept adult content if the modal is present
+    const acceptAdultContentButton = document.querySelector(
+      acceptAdultContentButtonSelector
+    );
+    if (acceptAdultContentButton) {
+      showNotification('Accepting adult content', 7000);
+      acceptAdultContentButton.click();
     }
   });
 
@@ -254,5 +277,5 @@ hideMuteAds();
 initRemoveAnimations();
 
 setTimeout(() => {
-  showNotification('Press [GREEN] to open configuration', 5000);
+  showNotification('Press [GREEN] button to open configuration', 5000);
 }, 2000);
