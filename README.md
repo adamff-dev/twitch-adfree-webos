@@ -8,7 +8,7 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
 - Ad hiding and muting
 - Disable animations to improve performance
-- Open following on startup
+- Open following tab on startup
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
 
@@ -55,7 +55,7 @@ luna-send-pub -n 1 'luna://com.webos.service.eim/deleteDevice' '{"appId":"twitch
 - Clone the repository
 
 ```sh
-git clone https://github.com/webosbrew/youtube-webos.git
+git clone https://github.com/adamff-dev/twitch-adfree-webos.git
 ```
 
 - Enter the folder and build the App, this will generate a `*.ipk` file.
@@ -114,12 +114,6 @@ npm run deploy
 
 ```sh
 npm run launch
-```
-
-To jump immediately into some specific video use:
-
-```sh
-npm run launch -- -p '{"contentTarget":"v=F8PGWLvn1mQ"}'
 ```
 
 ## Build, deploy and launch
