@@ -10,14 +10,14 @@ export function extractLaunchParams() {
 
 export function getTwitchURL() {
   const openFollowing = configRead('openFollowing');
-  const ytURL = new URL(
+  const twitchURL = new URL(
     'https://lg.tv.twitch.tv/' + (openFollowing ? 'following' : undefined)
   );
-  return ytURL;
+  return twitchURL;
 }
 
 export function handleLaunch(params) {
   console.info('handleLaunch', params);
-  let ytURL = getTwitchURL();
-  window.location.href = ytURL.toString();
+  const twitchURL = getTwitchURL();
+  window.location.href = twitchURL.toString();
 }
