@@ -1,6 +1,6 @@
 # Twitch AdFree
 
-Twitch app with extended functionalities
+Twitch app for webOS without ads
 
 Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
