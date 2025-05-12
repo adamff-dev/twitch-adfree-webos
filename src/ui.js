@@ -102,6 +102,9 @@ function createOptionsPanel() {
 
       if (evt.keyCode in ARROW_KEY_CODE) {
         navigate(ARROW_KEY_CODE[evt.keyCode]);
+      } else if (evt.keyCode === 13) {
+        // Enter key
+        document.activeElement.click();
       }
 
       evt.preventDefault();
@@ -120,7 +123,6 @@ function createOptionsPanel() {
   elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
   elmContainer.appendChild(createConfigCheckbox('disableAnimations'));
   elmContainer.appendChild(createConfigCheckbox('showBlockingAdsMessage'));
-  elmContainer.appendChild(createConfigCheckbox('openFollowing'));
 
   const elmBlock = document.createElement('blockquote');
 
