@@ -10,9 +10,8 @@ export function extractLaunchParams() {
 
 export function getTwitchURL() {
   const openFollowing = configRead('openFollowing');
-  const twitchURL = new URL(
-    'https://lg.tv.twitch.tv/' + (openFollowing ? 'following' : undefined)
-  );
+  const baseURL = 'https://lg.tv.twitch.tv/';
+  const twitchURL = new URL(openFollowing ? baseURL + 'following' : baseURL);
   return twitchURL;
 }
 

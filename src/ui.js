@@ -224,29 +224,29 @@ function initRemoveAnimations() {
   });
 }
 
-function hideMuteAds() {
-  if (!configRead('enableAdBlock')) {
-    return;
-  }
+function handleAdsAndConsentModals() {
+  const enableAdBlock = configRead('enableAdBlock');
 
   const observer = new MutationObserver(() => {
     const adElement = document.querySelector(bannerAdSelector);
     const videoElement = document.querySelector('video');
 
-    if (videoElement) {
+    if (videoElement && enableAdBlock) {
       const isAdVisible = !!adElement;
       const shouldMute =
         isAdVisible &&
         (!videoElement.muted || videoElement.style.display !== 'none');
+      const shouldUnmute =
+        !isAdVisible &&
+        (videoElement.muted || videoElement.style.display === 'none');
 
       if (shouldMute) {
         videoElement.muted = true;
-        videoElement.currentTime = videoElement.duration;
         videoElement.style.display = 'none';
         showNotification('Muting and hiding ads', 7000);
-      } else {
+      } else if (shouldUnmute) {
         videoElement.muted = false;
-        videoElement.style.display = '';
+        videoElement.style.display = 'block';
       }
     }
 
@@ -273,7 +273,7 @@ function hideMuteAds() {
   });
 }
 
-hideMuteAds();
+handleAdsAndConsentModals();
 initRemoveAnimations();
 
 setTimeout(() => {
