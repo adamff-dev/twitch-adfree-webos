@@ -9,8 +9,7 @@ const configOptions = new Map([
   [
     'showBlockingAdsMessage',
     { default: true, desc: 'Show a message while blocking ads' }
-  ],
-  ['openFollowing', { default: true, desc: 'Open "following" tab on startup' }]
+  ]
 ]);
 
 const defaultConfig = (() => {
