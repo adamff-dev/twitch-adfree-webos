@@ -10,7 +10,7 @@ import './ui.css';
 
 // Constants for selectors
 const rejectCookiesSelector =
-  '[role="dialog"] > div:last-child button:first-child';
+  '[role="dialog"][aria-modal="true"] > div:last-child button:first-child';
 const acceptAdultContentButtonSelector =
   'div:has(svg[role="presentation"]) > div:last-child button:first-child';
 const bannerAdSelector = '.r-2dbvay';
