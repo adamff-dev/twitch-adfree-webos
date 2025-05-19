@@ -11,8 +11,8 @@ import './ui.css';
 // Constants for selectors
 const rejectCookiesSelector =
   '[role="dialog"][aria-modal="true"] > div:last-child button:first-child';
-const acceptAdultContentButtonSelector =
-  'div:has(svg[role="presentation"]) > div:last-child button:first-child';
+const contentClassificationSelector =
+  'a[href*="tt_medium=content_classification"]';
 const bannerAdSelector = '.r-2dbvay';
 
 // We handle key events ourselves.
@@ -255,17 +255,20 @@ function handleAdsAndConsentModals() {
     // Auto-reject cookies if the modal is present
     const rejectCookiesButton = document.querySelector(rejectCookiesSelector);
     if (rejectCookiesButton) {
-      showNotification('Skipping cookie consent', 7000);
+      showNotification('Rejecting cookies', 7000);
       rejectCookiesButton.click();
     }
 
     // Auto-accept adult content if the modal is present
     const acceptAdultContentButton = document.querySelector(
-      acceptAdultContentButtonSelector
+      contentClassificationSelector
     );
-    if (acceptAdultContentButton) {
+    if (
+      acceptAdultContentButton &&
+      acceptAdultContentButton.previousElementSibling
+    ) {
       showNotification('Accepting adult content', 7000);
-      acceptAdultContentButton.click();
+      acceptAdultContentButton.previousElementSibling.click();
     }
   });
 
