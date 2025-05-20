@@ -7,6 +7,7 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 ## Features
 
 - Ad hiding and muting
+- View sub-only VODs without a subscription
 - Disable animations to improve performance
 - Open following tab on startup
 
