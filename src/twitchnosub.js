@@ -15,7 +15,7 @@
 // ==/UserScript==
 
 const patchAmazonWorkerUrl =
-  'https://raw.githubusercontent.com/adamff-dev/twitch-adfree-webos/refs/heads/main/src/patch_amazonworker.js';
+  'https://cdn.jsdelivr.net/gh/adamff-dev/twitch-adfree-webos/src/patch_amazonworker.js';
 
 (function () {
   'use strict';
