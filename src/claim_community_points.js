@@ -181,12 +181,17 @@ setInterval(async () => {
 
     await postIntegrity();
 
-    clearInterval(claimInterval);
+    if (claimInterval) {
+      clearInterval(claimInterval);
+    }
 
     // Run immediately
-    claimPointsRoutine();
+    await claimPointsRoutine();
     // Repeat every 1 minute
-    claimInterval = setInterval(claimPointsRoutine, 1 * 60 * 1000);
+    claimInterval = setInterval(
+      async () => await claimPointsRoutine(),
+      1 * 60 * 1000
+    );
   }
 }, 1000);
 
