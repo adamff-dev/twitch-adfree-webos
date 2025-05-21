@@ -3,26 +3,32 @@
 let resolutions = {
   '160p30': {
     res: '284x160',
+    bandwidth: 290738,
     fps: 30
   },
   '360p30': {
     res: '640x360',
+    bandwidth: 742051,
     fps: 30
   },
   '480p30': {
     res: '854x480',
+    bandwidth: 1469111,
     fps: 30
   },
   '720p60': {
     res: '1280x720',
+    bandwidth: 3430584,
     fps: 60
   },
   '1080p60': {
     res: '1920x1080',
+    bandwidth: 8438581,
     fps: 60
   },
   chunked: {
     res: '1920x1080',
+    bandwidth: 8438581,
     fps: 60
   }
 };
@@ -126,6 +132,12 @@ self.fetch = async function (input, opt) {
         return new Response('Unable to fetch twitch data API', { status: 403 });
       }
 
+      // Skip if the vod is not forbidden
+      const auth = data?.video?.playbackAccessToken?.authorization;
+      if (!auth || auth.isForbidden != 'true') {
+        return;
+      }
+
       const vodData = data.data.video;
       const channelData = vodData.owner;
 
@@ -160,9 +172,7 @@ self.fetch = async function (input, opt) {
 
       const broadcastType = vodData.broadcastType.toLowerCase();
 
-      let startQuality = 8534030;
-
-      for (const [resKey, resValue] of Object.entries(resolutions)) {
+      for (const [resKey, bandwidth, resValue] of Object.entries(resolutions)) {
         if (broadcastType === 'highlight') {
           url = `https://${domain}/${vodSpecialID}/${resKey}/highlight-${vodId}.m3u8`;
         } else if (broadcastType === 'upload' && days_difference > 7) {
@@ -188,10 +198,8 @@ self.fetch = async function (input, opt) {
 
           fakePlaylist += `
 #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="${quality}",NAME="${quality}",AUTOSELECT=${enabled},DEFAULT=${enabled}
-#EXT-X-STREAM-INF:BANDWIDTH=${startQuality},CODECS="${result.codec},mp4a.40.2",RESOLUTION=${resValue.res},VIDEO="${quality}",FRAME-RATE=${fps}
+#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},CODECS="${result.codec},mp4a.40.2",RESOLUTION=${resValue.res},VIDEO="${quality}",FRAME-RATE=${fps}
 ${url}`;
-
-          startQuality -= 100;
         }
       }
 
