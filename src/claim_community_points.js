@@ -1,3 +1,5 @@
+import { showNotification } from './ui.js';
+
 const originalFetch = window.fetch;
 window.fetch = (url, options) => {
   if (url.includes('gql.twitch.tv')) {
@@ -29,7 +31,7 @@ async function postChannelPointsContext(channelLogin) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-Id': communityPointsClientId,
+      'Client-Id': currentClientId,
       'X-Device-Id': xDeviceId,
       Authorization: authToken
     },
@@ -44,12 +46,15 @@ async function postChannelPointsContext(channelLogin) {
 }
 
 async function postIntegrity() {
+  // Route the request through our custom proxy to sidestep CORS, letting us spoof the
+  // Origin and Referer headers as https://www.twitch.tv/ (rather than https://lg.tv.twitch.tv/).
+  // This is necessary to get a valid integrity token.
   const url = 'https://twitch-proxy-2od0.onrender.com/integrity';
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-Id': communityPointsClientId,
+      'Client-Id': currentClientId,
       Authorization: authToken,
       'X-Device-Id': xDeviceId
     },
@@ -88,7 +93,7 @@ async function postClaimCommunityPoints(channelID, claimID, clientIntegrity) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-Id': communityPointsClientId,
+      'Client-Id': currentClientId,
       'Client-Integrity': clientIntegrity,
       'X-Device-Id': xDeviceId,
       Authorization: authToken
@@ -111,11 +116,7 @@ async function claimPointsRoutine() {
   }
 
   try {
-    const integrityResponse = await postIntegrity();
-    console.log('Integrity Token:', integrityResponse.token);
-
     const channelPointsContext = await postChannelPointsContext(channelLogin);
-    console.log('Channel Points Context:', channelPointsContext);
 
     if (
       channelPointsContext?.data?.community?.channel?.self?.communityPoints
@@ -130,16 +131,20 @@ async function claimPointsRoutine() {
     const channelID = channelPointsContext?.data?.community?.id;
 
     if (!claimId) {
-      console.warn('No claimable points available at this time.');
       return;
     }
 
     const claimResponse = await postClaimCommunityPoints(
       channelID,
       claimId,
-      'v4.local.y6UgqmSv4cEM3myCbhU68P4Jr92ImMZWloHk2fp5U7Fog9SZ0JKflEn1yr62n1mW44jCQ8IQo44XgTZivfEP_LeAThE-kfccRbG97fDqIg2KMvqymA0Ma9n7xSIw-Aw8j5bAUoj9JKFY62bplgtKibddbAtn82aC4LnQsALwgyI8qT0OgzuRJrLRmpzvtW7zF53u54BCHbKgl56zZr1_bP0386PkSC3jKLcyPIBfBXQu1_S_ydSyXbZsuWoN3FO6Bo9sJxqIsokD0pOd67mqdU8E65WIjNjJx3F-kH_y2Q3tfFmWIk6Q-6RiYzglGX95XjwNswvqZogUTorkacorDrKkemzPm3ehOCqnxQfbnf76fFceu0HgLWxWjm8iOl3P0EBsGS1UH4lZYBbpC0LpYB6LNLWtcveZURB8outiyNgHaD8Qw4CBTMqKoKWFMVOQXl5W9ROgwnGlLIOM'
+      integrityToken
     );
-    console.log('Claim Response:', claimResponse);
+
+    const pointsEarned =
+      claimResponse?.[0]?.data?.claimCommunityPoints?.claim?.pointsEarnedTotal;
+    if (typeof pointsEarned === 'number' && pointsEarned > 0) {
+      showNotification(`+${pointsEarned} community points!`, 10000);
+    }
   } catch (error) {
     console.error('Error during claim routine:', error);
   }
@@ -157,74 +162,30 @@ if (authTokenMatch) {
   authToken = `OAuth ${authTokenMatch[1]}`;
 }
 
-// Set client ID
-let communityPointsClientId = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
-
-// Get client-session-id from localStorage
-let clientSessionId =
-  localStorage.getItem('local_storage_app_session_id') ||
-  sessionStorage.getItem('twitchSessionID') ||
-  '';
-
-// Get client-version from sessionStorage (twilight.update_manager.known_builds)
-let clientVersion = '';
-try {
-  let buildsRaw =
-    sessionStorage.getItem('twilight.update_manager.known_builds') || '';
-  // Remove leading '["' and trailing '"]' if present
-  if (buildsRaw.startsWith('["') && buildsRaw.endsWith('"]')) {
-    clientVersion = buildsRaw.slice(2, -2);
-  } else {
-    // Fallback to JSON parse if not in expected format
-    const builds = JSON.parse(buildsRaw || '[]');
-    if (Array.isArray(builds) && builds.length > 0) {
-      clientVersion = builds[0];
-    }
-  }
-} catch (e) {
-  console.error('Error parsing client version:', e);
-  clientVersion = '';
-}
-
-// Get x-device-id from localStorage
-let xDeviceId = '';
-const uniqueIdMatch = document.cookie.match(/unique_id=([^;]+)/);
-if (uniqueIdMatch && uniqueIdMatch[1]) {
-  xDeviceId = uniqueIdMatch[1];
-} else {
-  const localCopyUniqueId = localStorage.getItem('local_copy_unique_id');
-  if (localCopyUniqueId) {
-    xDeviceId = localCopyUniqueId.replace(/"/g, '');
-  }
-}
-xDeviceId = 'sAvn9KoA5020z5LRYxojeHuBCpOPZ5f3';
-
-// Set referer
-const referer = 'https://www.twitch.tv/'; // Replace with your actual referer if needed
-
-console.log({
-  authorization: authToken,
-  clientId: communityPointsClientId,
-  clientSessionId,
-  clientVersion,
-  xDeviceId,
-  referer
-});
+const integrityToken =
+  'v4.local.y6UgqmSv4cEM3myCbhU68P4Jr92ImMZWloHk2fp5U7Fog9SZ0JKflEn1yr62n1mW44jCQ8IQo44XgTZivfEP_LeAThE-kfccRbG97fDqIg2KMvqymA0Ma9n7xSIw-Aw8j5bAUoj9JKFY62bplgtKibddbAtn82aC4LnQsALwgyI8qT0OgzuRJrLRmpzvtW7zF53u54BCHbKgl56zZr1_bP0386PkSC3jKLcyPIBfBXQu1_S_ydSyXbZsuWoN3FO6Bo9sJxqIsokD0pOd67mqdU8E65WIjNjJx3F-kH_y2Q3tfFmWIk6Q-6RiYzglGX95XjwNswvqZogUTorkacorDrKkemzPm3ehOCqnxQfbnf76fFceu0HgLWxWjm8iOl3P0EBsGS1UH4lZYBbpC0LpYB6LNLWtcveZURB8outiyNgHaD8Qw4CBTMqKoKWFMVOQXl5W9ROgwnGlLIOM';
+const currentClientId = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
+const xDeviceId = 'sAvn9KoA5020z5LRYxojeHuBCpOPZ5f3';
 
 let channelLogin;
 let claimInterval;
 
-setInterval(() => {
+setInterval(async () => {
   const newUsername = getTwitchUsername(window.location.href);
-  if (newUsername && newUsername !== channelLogin && newUsername != 'search') {
+  if (newUsername && newUsername !== channelLogin) {
     channelLogin = newUsername;
-    console.log('Username changed to:', channelLogin);
+
+    if (newUsername == 'search') {
+      return;
+    }
+
+    await postIntegrity();
+
+    clearInterval(claimInterval);
 
     // Run immediately
     claimPointsRoutine();
-
-    // Repeat every 15 minutes (15 * 60 * 1000 ms)
-    clearInterval(claimInterval);
+    // Repeat every 1 minute
     claimInterval = setInterval(claimPointsRoutine, 1 * 60 * 1000);
   }
 }, 1000);
