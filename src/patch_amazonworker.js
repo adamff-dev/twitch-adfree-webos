@@ -40,7 +40,7 @@ async function fetchTwitchDataGQL(vodID) {
       query:
         'query { video(id: "' +
         vodID +
-        '") { broadcastType, createdAt, seekPreviewsURL, owner { login } }}'
+        '") { broadcastType, createdAt, seekPreviewsURL, owner { login }, playbackAccessToken(params: {platform: "web", playerType: "site"}) { authorization { isForbidden } } }}'
     }),
     headers: {
       'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
@@ -126,19 +126,23 @@ self.fetch = async function (input, opt) {
       const vodId = url
         .split('https://usher.ttvnw.net/vod/')[1]
         .split('.m3u8')[0];
-      const data = await fetchTwitchDataGQL(vodId);
+      const twitchVideoRes = await fetchTwitchDataGQL(vodId);
 
-      if (data == undefined) {
+      if (twitchVideoRes == undefined) {
         return new Response('Unable to fetch twitch data API', { status: 403 });
       }
 
+      const vodData = twitchVideoRes.data.video;
+
       // Skip if the vod is not forbidden
-      const auth = data?.video?.playbackAccessToken?.authorization;
-      if (!auth || auth.isForbidden != 'true') {
-        return;
+      const tokenAuth =
+        vodData &&
+        vodData.playbackAccessToken &&
+        vodData.playbackAccessToken.authorization;
+      if (!tokenAuth || tokenAuth.isForbidden != true) {
+        return response;
       }
 
-      const vodData = data.data.video;
       const channelData = vodData.owner;
 
       let sorted_dict = Object.keys(resolutions);
@@ -172,7 +176,7 @@ self.fetch = async function (input, opt) {
 
       const broadcastType = vodData.broadcastType.toLowerCase();
 
-      for (const [resKey, bandwidth, resValue] of Object.entries(resolutions)) {
+      for (const [resKey, resValue] of Object.entries(resolutions)) {
         if (broadcastType === 'highlight') {
           url = `https://${domain}/${vodSpecialID}/${resKey}/highlight-${vodId}.m3u8`;
         } else if (broadcastType === 'upload' && days_difference > 7) {
@@ -198,7 +202,7 @@ self.fetch = async function (input, opt) {
 
           fakePlaylist += `
 #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="${quality}",NAME="${quality}",AUTOSELECT=${enabled},DEFAULT=${enabled}
-#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},CODECS="${result.codec},mp4a.40.2",RESOLUTION=${resValue.res},VIDEO="${quality}",FRAME-RATE=${fps}
+#EXT-X-STREAM-INF:BANDWIDTH=${resValue.bandwidth},CODECS="${result.codec},mp4a.40.2",RESOLUTION=${resValue.res},VIDEO="${quality}",FRAME-RATE=${fps}
 ${url}`;
         }
       }
