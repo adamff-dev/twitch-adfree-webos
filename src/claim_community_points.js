@@ -166,6 +166,7 @@ const integrityToken =
   'v4.local.y6UgqmSv4cEM3myCbhU68P4Jr92ImMZWloHk2fp5U7Fog9SZ0JKflEn1yr62n1mW44jCQ8IQo44XgTZivfEP_LeAThE-kfccRbG97fDqIg2KMvqymA0Ma9n7xSIw-Aw8j5bAUoj9JKFY62bplgtKibddbAtn82aC4LnQsALwgyI8qT0OgzuRJrLRmpzvtW7zF53u54BCHbKgl56zZr1_bP0386PkSC3jKLcyPIBfBXQu1_S_ydSyXbZsuWoN3FO6Bo9sJxqIsokD0pOd67mqdU8E65WIjNjJx3F-kH_y2Q3tfFmWIk6Q-6RiYzglGX95XjwNswvqZogUTorkacorDrKkemzPm3ehOCqnxQfbnf76fFceu0HgLWxWjm8iOl3P0EBsGS1UH4lZYBbpC0LpYB6LNLWtcveZURB8outiyNgHaD8Qw4CBTMqKoKWFMVOQXl5W9ROgwnGlLIOM';
 const currentClientId = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
 const xDeviceId = 'sAvn9KoA5020z5LRYxojeHuBCpOPZ5f3';
+const claimIntervalMillis = 60000;
 
 let channelLogin;
 let claimInterval;
@@ -190,7 +191,7 @@ setInterval(async () => {
     // Repeat every 1 minute
     claimInterval = setInterval(
       async () => await claimPointsRoutine(),
-      1 * 60 * 1000
+      claimIntervalMillis
     );
   }
 }, 1000);
