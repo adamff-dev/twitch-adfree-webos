@@ -1,21 +1,27 @@
 # Twitch AdFree
 
-Twitch app for webOS without ads
+A webOS application for Twitch that hides and mutes ads, automatically claims channel points and unlocks sub-only VODs.
 
 Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
 ## Features
 
-- Ad hiding and muting
+- Hides and mutes ads
+- Automatically claims community points during streams
 - View sub-only VODs without a subscription
 - Disable animations to improve performance
-- Open following tab on startup
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
 
 ## Contribution
 
-This app currently only hides and mutes ads when they appear, without ensuring uninterrupted streaming. If you have insights or methods to bypass ads altogether and enhance the streaming experience, we welcome your contributions to this project.
+We welcome contributions of any kind — code, documentation, bug reports, or feature suggestions.
+
+If you find this project helpful and want to support its development, consider making a donation.
+
+Your support helps keep the project active and maintained. Thank you! 🙌
+
+<a href="https://www.buymeacoffee.com/rSiZtB3"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=rSiZtB3&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 
 ## Installation
 
@@ -62,7 +68,7 @@ git clone https://github.com/adamff-dev/twitch-adfree-webos.git
 - Enter the folder and build the App, this will generate a `*.ipk` file.
 
 ```sh
-cd youtube-webos
+cd twitch-adfree
 
 # Install dependencies (need to do this only when updating local repository / package.json is changed)
 npm install
@@ -118,6 +124,8 @@ npm run launch
 ```
 
 ## Build, deploy and launch
+
+The following one-liner is convenient for debugging because it chains together all the essential steps — building, packaging, deploying, and launching — into a single command:
 
 ```sh
 pnpm run build && pnpm run package && pnpm run deploy && pnpm run launch
