@@ -1,14 +1,21 @@
 /*global navigate*/
-import './lib/spatial-navigation-polyfill.js';
+import '../lib/spatial-navigation-polyfill.js';
 import {
   configAddChangeListener,
   configRead,
   configWrite,
   configGetDesc
-} from './config.js';
-import './ui.css';
+} from '../config.js';
+import '../style/ui.css';
+import {
+  DISABLE_ANIMATIONS,
+  ENABLE_AD_BLOCK,
+  SHOW_BLOCKING_ADS_MESSAGE,
+  SHOW_CLAIM_POINTS_MESSAGE
+} from '../constants/config.constants.js';
 
 // Constants for selectors
+// Note: don't use class selectors, as they can change on every twitch deployment
 const rejectCookiesSelector =
   '[role="dialog"][aria-modal="true"] > div:last-child button:first-child';
 const contentClassificationSelector =
@@ -120,9 +127,10 @@ function createOptionsPanel() {
   elmBody.textContent = 'Press [GREEN] button again to close configuration';
   elmContainer.appendChild(elmBody);
 
-  elmContainer.appendChild(createConfigCheckbox('enableAdBlock'));
-  elmContainer.appendChild(createConfigCheckbox('disableAnimations'));
-  elmContainer.appendChild(createConfigCheckbox('showBlockingAdsMessage'));
+  elmContainer.appendChild(createConfigCheckbox(ENABLE_AD_BLOCK));
+  elmContainer.appendChild(createConfigCheckbox(DISABLE_ANIMATIONS));
+  elmContainer.appendChild(createConfigCheckbox(SHOW_BLOCKING_ADS_MESSAGE));
+  elmContainer.appendChild(createConfigCheckbox(SHOW_CLAIM_POINTS_MESSAGE));
 
   const elmBlock = document.createElement('blockquote');
 
@@ -180,9 +188,8 @@ document.addEventListener('keydown', eventHandler, true);
 document.addEventListener('keypress', eventHandler, true);
 document.addEventListener('keyup', eventHandler, true);
 
-export function showNotification(text, time = 3000) {
+export function showNotification(text, time = 7000, type = 'success') {
   if (!document.querySelector('.taf-notification-container')) {
-    console.info('Adding notification container');
     const c = document.createElement('div');
     c.classList.add('taf-notification-container');
     document.body.appendChild(c);
@@ -193,6 +200,7 @@ export function showNotification(text, time = 3000) {
   elmInner.innerText = text;
   elmInner.classList.add('message');
   elmInner.classList.add('message-hidden');
+  elmInner.classList.add(`message-${type}`);
   elm.appendChild(elmInner);
   document.querySelector('.taf-notification-container').appendChild(elm);
 
@@ -219,15 +227,15 @@ function initRemoveAnimations() {
     style.textContent = hide ? '* { transition: none !important; }' : '';
   };
 
-  setHidden(configRead('disableAnimations'));
+  setHidden(configRead(DISABLE_ANIMATIONS));
 
-  configAddChangeListener('disableAnimations', (evt) => {
+  configAddChangeListener(DISABLE_ANIMATIONS, (evt) => {
     setHidden(evt.detail.newValue);
   });
 }
 
 function handleAdsAndConsentModals() {
-  const enableAdBlock = configRead('enableAdBlock');
+  const enableAdBlock = configRead(ENABLE_AD_BLOCK);
 
   const observer = new MutationObserver(() => {
     const adElement = document.querySelector(bannerAdSelector);
@@ -245,7 +253,7 @@ function handleAdsAndConsentModals() {
       if (shouldMute) {
         videoElement.muted = true;
         videoElement.style.display = 'none';
-        showNotification('Muting and hiding ads', 7000);
+        showNotification('Ads muted and hidden');
       } else if (shouldUnmute) {
         videoElement.muted = false;
         videoElement.style.display = 'block';
@@ -255,8 +263,8 @@ function handleAdsAndConsentModals() {
     // Auto-reject cookies if the modal is present
     const rejectCookiesButton = document.querySelector(rejectCookiesSelector);
     if (rejectCookiesButton) {
-      showNotification('Rejecting cookies', 7000);
       rejectCookiesButton.click();
+      showNotification('Cookie consent rejected automatically');
     }
 
     // Auto-accept adult content if the modal is present
@@ -267,8 +275,8 @@ function handleAdsAndConsentModals() {
       acceptAdultContentButton &&
       acceptAdultContentButton.previousElementSibling
     ) {
-      showNotification('Accepting adult content', 7000);
       acceptAdultContentButton.previousElementSibling.click();
+      showNotification('Mature content warning dismissed automatically');
     }
   });
 
@@ -281,6 +289,4 @@ function handleAdsAndConsentModals() {
 handleAdsAndConsentModals();
 initRemoveAnimations();
 
-setTimeout(() => {
-  showNotification('Press [GREEN] button to open configuration', 5000);
-}, 2000);
+showNotification('Press [GREEN] button to open configuration', 5000, 'info');

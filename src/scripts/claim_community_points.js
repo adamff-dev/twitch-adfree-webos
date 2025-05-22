@@ -1,4 +1,6 @@
 import { showNotification } from './ui.js';
+import { configRead } from '../config.js';
+import { SHOW_CLAIM_POINTS_MESSAGE } from '../constants/config.constants.js';
 
 // Global constants
 const tvClientId = 'ue6666qo983tsx6so1t0vnawi233wa';
@@ -117,8 +119,13 @@ async function claimPointsRoutine() {
 
     const claimResponse = await postClaimCommunityPoints(channelID, claimId);
 
+    if (!configRead(SHOW_CLAIM_POINTS_MESSAGE)) {
+      return;
+    }
+
     const pointsEarned =
       claimResponse?.[0]?.data?.claimCommunityPoints?.claim?.pointsEarnedTotal;
+
     if (typeof pointsEarned === 'number' && pointsEarned > 0) {
       showNotification(`+${pointsEarned} community points!`, 10000);
     }

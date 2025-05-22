@@ -1,16 +1,4 @@
-const CONFIG_KEY = 'taf-configuration';
-
-const configOptions = new Map([
-  ['enableAdBlock', { default: true, desc: 'Mute and hide ads' }],
-  [
-    'disableAnimations',
-    { default: true, desc: 'Disable animations (for better performance)' }
-  ],
-  [
-    'showBlockingAdsMessage',
-    { default: true, desc: 'Show a message while blocking ads' }
-  ]
-]);
+import { CONFIG_KEY, configOptions } from './constants/config.constants';
 
 const defaultConfig = (() => {
   let ret = {};
