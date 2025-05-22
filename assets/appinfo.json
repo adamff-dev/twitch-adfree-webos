@@ -6,13 +6,9 @@
   "main": "index.html",
   "title": "Twitch AdFree",
   "icon": "icon.jpg",
+  "splashBackground": "splash.png",
   "largeIcon": "largeIcon.jpg",
   "iconColor": "#00000",
-  "support360Content": true,
-  "checkUpdateOnLaunch": false,
-  "accessibility": {
-    "supportsAudioGuidance": true
-  },
   "vendorExtension": {
     "userAgent": "$browserName$/$browserVersion$ ($platformName$-$platformVersion$), _TV_O18/$firmwareVersion$ (LG, $modelName$, $networkMode$)",
     "allowCrossDomain": true
