@@ -1,18 +1,16 @@
 import { showNotification } from './ui.js';
 
-const originalFetch = window.fetch;
-window.fetch = (url, options) => {
-  if (url.includes('gql.twitch.tv')) {
-    options = options || {};
-    options.headers = {
-      ...options.headers,
-      Origin: 'https://www.twitch.tv',
-      Referer: 'https://www.twitch.tv/'
-    };
-  }
-  return originalFetch(url, options);
-};
+// Global constants
+const tvClientId = 'ue6666qo983tsx6so1t0vnawi233wa';
+const xDeviceId = 'MtM5pFJr7361rgBzg1L1HoPCAjbHOov5';
+const apiConsumerType = 'tv; lg_web_tv/sst-8414cf5';
+const claimIntervalMillis = 60000;
 
+// Global variables
+let currentChannelLogin;
+let claimInterval;
+
+// #region Functions to handle Twitch API requests
 async function postChannelPointsContext(channelLogin) {
   const url = 'https://gql.twitch.tv/gql';
   const body = {
@@ -31,7 +29,7 @@ async function postChannelPointsContext(channelLogin) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-Id': currentClientId,
+      'Client-Id': tvClientId,
       'X-Device-Id': xDeviceId,
       Authorization: authToken
     },
@@ -45,30 +43,7 @@ async function postChannelPointsContext(channelLogin) {
   return response.json();
 }
 
-async function postIntegrity() {
-  // Route the request through our custom proxy to sidestep CORS, letting us spoof the
-  // Origin and Referer headers as https://www.twitch.tv/ (rather than https://lg.tv.twitch.tv/).
-  // This is necessary to get a valid integrity token.
-  const url = 'https://twitch-proxy-2od0.onrender.com/integrity';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Client-Id': currentClientId,
-      Authorization: authToken,
-      'X-Device-Id': xDeviceId
-    },
-    body: JSON.stringify({})
-  });
-
-  if (!response.ok) {
-    throw new Error(`Integrity HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-async function postClaimCommunityPoints(channelID, claimID, clientIntegrity) {
+async function postClaimCommunityPoints(channelID, claimID) {
   const url = 'https://gql.twitch.tv/gql';
   const body = [
     {
@@ -93,8 +68,8 @@ async function postClaimCommunityPoints(channelID, claimID, clientIntegrity) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-Id': currentClientId,
-      'Client-Integrity': clientIntegrity,
+      'Client-Id': tvClientId,
+      'api-consumer-type': apiConsumerType,
       'X-Device-Id': xDeviceId,
       Authorization: authToken
     },
@@ -111,12 +86,18 @@ async function postClaimCommunityPoints(channelID, claimID, clientIntegrity) {
 }
 
 async function claimPointsRoutine() {
-  if (!channelLogin) {
+  if (!currentChannelLogin) {
     return;
   }
 
+  // Ensure the auth token is updated if the user has just logged in while the interval is already running
+  if (!authToken || authToken === '') {
+    updateAuthToken();
+  }
+
   try {
-    const channelPointsContext = await postChannelPointsContext(channelLogin);
+    const channelPointsContext =
+      await postChannelPointsContext(currentChannelLogin);
 
     if (
       channelPointsContext?.data?.community?.channel?.self?.communityPoints
@@ -134,11 +115,7 @@ async function claimPointsRoutine() {
       return;
     }
 
-    const claimResponse = await postClaimCommunityPoints(
-      channelID,
-      claimId,
-      integrityToken
-    );
+    const claimResponse = await postClaimCommunityPoints(channelID, claimId);
 
     const pointsEarned =
       claimResponse?.[0]?.data?.claimCommunityPoints?.claim?.pointsEarnedTotal;
@@ -149,38 +126,38 @@ async function claimPointsRoutine() {
     console.error('Error during claim routine:', error);
   }
 }
+// #endregion Functions to handle Twitch API requests
 
+// #region Auxiliary functions
 function getTwitchUsername(url) {
   const match = url.match(/^https?:\/\/([a-z0-9.-]+\.)?twitch\.tv\/(\w+)\/?$/i);
   return match ? match[2] : null;
 }
 
-// Get authorization token from cookies
-let authToken = '';
-const authTokenMatch = document.cookie.match(/auth-token=([^;]+)/);
-if (authTokenMatch) {
-  authToken = `OAuth ${authTokenMatch[1]}`;
+function updateAuthToken() {
+  const authTokenMatch = document.cookie.match(/auth-token=([^;]+)/);
+  if (authTokenMatch) {
+    authToken = `OAuth ${authTokenMatch[1]}`;
+  }
 }
+// #endregion Auxiliary functions
 
-const integrityToken =
-  'v4.local.y6UgqmSv4cEM3myCbhU68P4Jr92ImMZWloHk2fp5U7Fog9SZ0JKflEn1yr62n1mW44jCQ8IQo44XgTZivfEP_LeAThE-kfccRbG97fDqIg2KMvqymA0Ma9n7xSIw-Aw8j5bAUoj9JKFY62bplgtKibddbAtn82aC4LnQsALwgyI8qT0OgzuRJrLRmpzvtW7zF53u54BCHbKgl56zZr1_bP0386PkSC3jKLcyPIBfBXQu1_S_ydSyXbZsuWoN3FO6Bo9sJxqIsokD0pOd67mqdU8E65WIjNjJx3F-kH_y2Q3tfFmWIk6Q-6RiYzglGX95XjwNswvqZogUTorkacorDrKkemzPm3ehOCqnxQfbnf76fFceu0HgLWxWjm8iOl3P0EBsGS1UH4lZYBbpC0LpYB6LNLWtcveZURB8outiyNgHaD8Qw4CBTMqKoKWFMVOQXl5W9ROgwnGlLIOM';
-const currentClientId = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
-const xDeviceId = 'sAvn9KoA5020z5LRYxojeHuBCpOPZ5f3';
-const claimIntervalMillis = 60000;
+// #region Main script
 
-let channelLogin;
-let claimInterval;
+// Get authorization token from cookies
+let authToken;
+updateAuthToken();
 
+// Note: an alternative way is to listen to DOM changes with MutationObserver.
+// Twitch username is in element "main section:first-of-type div.tw-root--theme-light h3"
 setInterval(async () => {
   const newUsername = getTwitchUsername(window.location.href);
-  if (newUsername && newUsername !== channelLogin) {
-    channelLogin = newUsername;
+  if (newUsername && newUsername !== currentChannelLogin) {
+    currentChannelLogin = newUsername;
 
     if (newUsername == 'search') {
       return;
     }
-
-    await postIntegrity();
 
     if (claimInterval) {
       clearInterval(claimInterval);
@@ -195,6 +172,8 @@ setInterval(async () => {
     );
   }
 }, 1000);
+
+// #endregion Main script
 
 /**
  * Force babel to interpret this file as ESM so it
