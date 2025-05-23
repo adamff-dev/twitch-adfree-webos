@@ -1,6 +1,6 @@
 {
   "id": "twitch.adamffdev.v1",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "vendor": "webosbrew.org",
   "type": "web",
   "main": "index.html",
