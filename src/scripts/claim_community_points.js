@@ -3,10 +3,13 @@ import { configRead } from '../config.js';
 import { SHOW_CLAIM_POINTS_MESSAGE } from '../constants/config.constants.js';
 
 // Global constants
+const twitchGraphQLEndpoint = 'https://gql.twitch.tv/gql';
+const claimIntervalMillis = 60000;
+// Header values
+const contentTypeJson = 'application/json';
 const tvClientId = 'ue6666qo983tsx6so1t0vnawi233wa';
 const xDeviceId = 'MtM5pFJr7361rgBzg1L1HoPCAjbHOov5';
 const apiConsumerType = 'tv; lg_web_tv/sst-8414cf5';
-const claimIntervalMillis = 60000;
 
 // Global variables
 let currentChannelLogin;
@@ -14,7 +17,6 @@ let claimInterval;
 
 // #region Functions to handle Twitch API requests
 async function postChannelPointsContext(channelLogin) {
-  const url = 'https://gql.twitch.tv/gql';
   const body = {
     operationName: 'ChannelPointsContext',
     variables: { channelLogin },
@@ -27,10 +29,10 @@ async function postChannelPointsContext(channelLogin) {
     }
   };
 
-  const response = await fetch(url, {
+  const response = await fetch(twitchGraphQLEndpoint, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': contentTypeJson,
       'Client-Id': tvClientId,
       'X-Device-Id': xDeviceId,
       Authorization: authToken
@@ -46,7 +48,6 @@ async function postChannelPointsContext(channelLogin) {
 }
 
 async function postClaimCommunityPoints(channelID, claimID) {
-  const url = 'https://gql.twitch.tv/gql';
   const body = [
     {
       operationName: 'ClaimCommunityPoints',
@@ -66,10 +67,10 @@ async function postClaimCommunityPoints(channelID, claimID) {
     }
   ];
 
-  const response = await fetch(url, {
+  const response = await fetch(twitchGraphQLEndpoint, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': contentTypeJson,
       'Client-Id': tvClientId,
       'api-consumer-type': apiConsumerType,
       'X-Device-Id': xDeviceId,
@@ -162,12 +163,13 @@ setInterval(async () => {
   if (newUsername && newUsername !== currentChannelLogin) {
     currentChannelLogin = newUsername;
 
-    if (newUsername == 'search') {
+    if (newUsername == 'search' || !newUsername) {
+      // Reset the interval if the user is not on a channel page
+      if (claimInterval) {
+        clearInterval(claimInterval);
+        claimInterval = null;
+      }
       return;
-    }
-
-    if (claimInterval) {
-      clearInterval(claimInterval);
     }
 
     // Run immediately
