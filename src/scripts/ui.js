@@ -22,14 +22,27 @@ const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
 const bannerAdSelector = '.r-2dbvay';
 
-const ARROW_KEY_CODE = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
+const HOME_SELECTOR = 'a[href="/"]';
+const LOGIN_SELECTOR = 'a[href="/login"]';
+const FOLLOWING_SELECTOR = 'a[href="/following"]';
+const DIRECTORY_SELECTOR = 'a[href="/directory"]';
+const SEARCH_SELECTOR = 'a[href="/search"]';
 
-const KEY_CODE_TO_NAVIGATION_MAP = {
-  49: 'a[href="/"]', // 1 button
-  50: 'a[href="/following"]', // 2 button
-  51: 'a[href="/directory"]', // 3 button
-  52: 'a[href="/search"]' // 4 button
+const LOGGED_IN_NAVIGATION_MAP = {
+  49: HOME_SELECTOR, // 1 button
+  50: FOLLOWING_SELECTOR, // 2 button
+  51: DIRECTORY_SELECTOR, // 3 button
+  52: SEARCH_SELECTOR // 4 button
 };
+
+const LOGGED_OUT_NAVIGATION_MAP = {
+  49: LOGIN_SELECTOR, // 1 button
+  50: HOME_SELECTOR, // 2 button
+  51: DIRECTORY_SELECTOR, // 3 button
+  52: SEARCH_SELECTOR // 4 button
+};
+
+const ARROW_KEY_CODE = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
 
 const colorCodeMap = new Map([
   [403, 'red'],
@@ -165,7 +178,9 @@ function showOptionsPanel(visible) {
 window.taf_showOptionsPanel = showOptionsPanel;
 
 function handleNumberButtonsClick(keyCode) {
-  const buttonSelector = KEY_CODE_TO_NAVIGATION_MAP[keyCode];
+  const buttonSelector = document.querySelector(LOGIN_SELECTOR)
+    ? LOGGED_OUT_NAVIGATION_MAP[keyCode]
+    : LOGGED_IN_NAVIGATION_MAP[keyCode];
   const buttonElement = document.querySelector(buttonSelector);
   if (buttonElement) {
     buttonElement.click();
@@ -175,7 +190,7 @@ function handleNumberButtonsClick(keyCode) {
 const eventHandler = (evt) => {
   console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
 
-  if (Object.keys(KEY_CODE_TO_NAVIGATION_MAP).includes(String(evt.keyCode))) {
+  if (Object.keys(LOGGED_IN_NAVIGATION_MAP).includes(String(evt.keyCode))) {
     handleNumberButtonsClick(evt.keyCode);
     evt.preventDefault();
     evt.stopPropagation();
