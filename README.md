@@ -10,6 +10,11 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 - Automatically claims community points during streams
 - View sub-only VODs without a subscription
 - Disable animations to improve performance
+- You can now navigate through the top navigation buttons using the number keys 1 to 4:
+  - 1️⃣ — Home
+  - 2️⃣ — Following
+  - 3️⃣ — Browse
+  - 4️⃣ — Search
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
 
