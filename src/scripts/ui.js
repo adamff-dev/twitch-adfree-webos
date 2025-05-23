@@ -22,23 +22,21 @@ const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
 const bannerAdSelector = '.r-2dbvay';
 
-// We handle key events ourselves.
-window.__spatialNavigation__.keyMode = 'NONE';
-
 const ARROW_KEY_CODE = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
 
-// Red, Green, Yellow, Blue
-// 403,   404,    405,  406
-// ---,   172,    170,  191
+const KEY_CODE_TO_NAVIGATION_MAP = {
+  49: 'a[href="/"]', // 1 button
+  50: 'a[href="/following"]', // 2 button
+  51: 'a[href="/directory"]', // 3 button
+  52: 'a[href="/search"]' // 4 button
+};
+
 const colorCodeMap = new Map([
   [403, 'red'],
-
   [404, 'green'],
   [172, 'green'],
-
   [405, 'yellow'],
   [170, 'yellow'],
-
   [406, 'blue'],
   [191, 'blue']
 ]);
@@ -166,8 +164,23 @@ function showOptionsPanel(visible) {
 
 window.taf_showOptionsPanel = showOptionsPanel;
 
+function handleNumberButtonsClick(keyCode) {
+  const buttonSelector = KEY_CODE_TO_NAVIGATION_MAP[keyCode];
+  const buttonElement = document.querySelector(buttonSelector);
+  if (buttonElement) {
+    buttonElement.click();
+  }
+}
+
 const eventHandler = (evt) => {
   console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
+
+  if (Object.keys(KEY_CODE_TO_NAVIGATION_MAP).includes(String(evt.keyCode))) {
+    handleNumberButtonsClick(evt.keyCode);
+    evt.preventDefault();
+    evt.stopPropagation();
+    return false;
+  }
 
   if (getKeyColor(evt.keyCode) === 'green') {
     console.info('Taking over!');
@@ -183,10 +196,6 @@ const eventHandler = (evt) => {
   }
   return true;
 };
-
-document.addEventListener('keydown', eventHandler, true);
-document.addEventListener('keypress', eventHandler, true);
-document.addEventListener('keyup', eventHandler, true);
 
 export function showNotification(text, time = 7000, type = 'success') {
   if (!document.querySelector('.taf-notification-container')) {
@@ -216,13 +225,14 @@ export function showNotification(text, time = 7000, type = 'success') {
 }
 
 /**
- * Initialize ability to remove animations
+ * Initializes the removal of CSS transition animations based on a configuration setting.
+ * Appends a <style> element to the document head to disable transitions globally when enabled.
+ * Listens for changes to the DISABLE_ANIMATIONS config and updates the style accordingly.
  */
 function initRemoveAnimations() {
   const style = document.createElement('style');
   document.head.appendChild(style);
 
-  /** @type {(hide: boolean) => void} */
   const setHidden = (hide) => {
     style.textContent = hide ? '* { transition: none !important; }' : '';
   };
@@ -286,7 +296,18 @@ function handleAdsAndConsentModals() {
   });
 }
 
-handleAdsAndConsentModals();
-initRemoveAnimations();
+function initKeyListeners() {
+  document.addEventListener('keydown', eventHandler, true);
+  document.addEventListener('keypress', eventHandler, true);
+  document.addEventListener('keyup', eventHandler, true);
+}
 
-showNotification('Press [GREEN] button to open configuration', 5000, 'info');
+function init() {
+  handleAdsAndConsentModals();
+  initRemoveAnimations();
+  initKeyListeners();
+
+  showNotification('Press [GREEN] button to open configuration', 5000, 'info');
+}
+
+init();
