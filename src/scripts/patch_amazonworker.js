@@ -97,8 +97,20 @@ async function isValidQuality(url) {
 
 const oldFetch = self.fetch;
 
+self.onSeiMessage = function (_e) {
+  return;
+};
+
 self.fetch = async function (input, opt) {
-  let url = input instanceof Request ? input.url : input.toString();
+  let url;
+  if (input instanceof Request) {
+    url = input.url;
+  } else if (typeof input === 'string' || input instanceof String) {
+    url = input.toString();
+  } else {
+    // Fallback to oldFetch
+    return oldFetch(input, opt);
+  }
 
   // Fix relative URL for Worker context
   if (url.startsWith('/')) {
@@ -112,14 +124,17 @@ self.fetch = async function (input, opt) {
     }
   }
 
-  let response = await oldFetch(input, opt);
-
-  // Patch playlist from unmuted to muted segments
-  if (url.includes('cloudfront') && url.includes('.m3u8')) {
-    const body = await response.text();
-
-    return new Response(body.replace(/-unmuted/g, '-muted'), { status: 200 });
+  // Block chunks requests
+  if (url.includes('/_next/static/chunks') && url.includes('.js')) {
+    return;
   }
+
+  // Block Sentry requests
+  if (url.includes('ingest.sentry.io')) {
+    return;
+  }
+
+  let response = await oldFetch(input, opt);
 
   if (url.startsWith('https://usher.ttvnw.net/vod/')) {
     if (response.status != 200) {
