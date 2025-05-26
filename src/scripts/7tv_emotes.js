@@ -32,7 +32,7 @@ import { showNotification } from './ui';
       showNotification('7TV emotes loaded successfully!');
 
       emotes.forEach((emote) => {
-        const url = `https:${emote.data.host.url}/2x.webp`;
+        const url = `https:${emote.data.host.url}/1x.webp`;
         emoteMap.set(emote.name, url);
       });
       console.log(emoteMap);
