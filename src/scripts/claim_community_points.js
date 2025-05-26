@@ -1,15 +1,17 @@
 import { showNotification } from './ui.js';
 import { configRead } from '../config.js';
 import { SHOW_CLAIM_POINTS_MESSAGE } from '../constants/config.constants.js';
+import {
+  apiConsumerType,
+  contentTypeJson,
+  tvClientId,
+  twitchGraphQLEndpoint,
+  xDeviceId
+} from '../constants/requests.constants.js';
+import { getAuthToken, getTwitchUsername } from '../utils/utils.js';
 
 // Global constants
-const twitchGraphQLEndpoint = 'https://gql.twitch.tv/gql';
 const claimIntervalMillis = 60000;
-// Header values
-const contentTypeJson = 'application/json';
-const tvClientId = 'ue6666qo983tsx6so1t0vnawi233wa';
-const xDeviceId = 'MtM5pFJr7361rgBzg1L1HoPCAjbHOov5';
-const apiConsumerType = 'tv; lg_web_tv/sst-8414cf5';
 
 // Global variables
 let currentChannelLogin;
@@ -95,7 +97,7 @@ async function claimPointsRoutine() {
 
   // Ensure the auth token is updated if the user has just logged in while the interval is already running
   if (!authToken || authToken === '') {
-    updateAuthToken();
+    authToken = getAuthToken();
   }
 
   try {
@@ -136,25 +138,11 @@ async function claimPointsRoutine() {
 }
 // #endregion Functions to handle Twitch API requests
 
-// #region Auxiliary functions
-function getTwitchUsername(url) {
-  const match = url.match(/^https?:\/\/([a-z0-9.-]+\.)?twitch\.tv\/(\w+)\/?$/i);
-  return match ? match[2] : null;
-}
-
-function updateAuthToken() {
-  const authTokenMatch = document.cookie.match(/auth-token=([^;]+)/);
-  if (authTokenMatch) {
-    authToken = `OAuth ${authTokenMatch[1]}`;
-  }
-}
-// #endregion Auxiliary functions
-
 // #region Main script
 
 // Get authorization token from cookies
 let authToken;
-updateAuthToken();
+authToken = getAuthToken();
 
 // Note: an alternative way is to listen to DOM changes with MutationObserver.
 // Twitch username is in element "main section:first-of-type div.tw-root--theme-light h3"
