@@ -9,6 +9,7 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 - Hides and mutes ads
 - Automatically claims community points during streams
 - View sub-only VODs without a subscription
+- Integrated support for 7TV emotes
 - Disable animations to improve performance
 - You can now navigate through the top navigation buttons using the number keys 1 to 4:
   - 1️⃣ — Home
