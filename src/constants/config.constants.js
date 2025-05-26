@@ -3,6 +3,7 @@ export const ENABLE_AD_BLOCK = 'enableAdBlock';
 export const DISABLE_ANIMATIONS = 'disableAnimations';
 export const SHOW_CLAIM_POINTS_MESSAGE = 'showClaimPointsMessage';
 export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
+export const LOAD_7TV_EMOTES = 'load7TVEmotes';
 
 export const configOptions = new Map([
   [ENABLE_AD_BLOCK, { default: true, desc: 'Mute and hide ads' }],
@@ -17,5 +18,6 @@ export const configOptions = new Map([
   [
     SHOW_BLOCKING_ADS_MESSAGE,
     { default: true, desc: 'Show a message while blocking ads' }
-  ]
+  ],
+  [LOAD_7TV_EMOTES, { default: true, desc: 'Load 7TV emotes' }]
 ]);

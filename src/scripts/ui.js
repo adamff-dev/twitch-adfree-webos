@@ -10,6 +10,7 @@ import '../style/ui.css';
 import {
   DISABLE_ANIMATIONS,
   ENABLE_AD_BLOCK,
+  LOAD_7TV_EMOTES,
   SHOW_BLOCKING_ADS_MESSAGE,
   SHOW_CLAIM_POINTS_MESSAGE
 } from '../constants/config.constants.js';
@@ -140,6 +141,7 @@ function createOptionsPanel() {
 
   elmContainer.appendChild(createConfigCheckbox(ENABLE_AD_BLOCK));
   elmContainer.appendChild(createConfigCheckbox(DISABLE_ANIMATIONS));
+  elmContainer.appendChild(createConfigCheckbox(LOAD_7TV_EMOTES));
   elmContainer.appendChild(createConfigCheckbox(SHOW_BLOCKING_ADS_MESSAGE));
   elmContainer.appendChild(createConfigCheckbox(SHOW_CLAIM_POINTS_MESSAGE));
 
