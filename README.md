@@ -15,6 +15,7 @@ Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
   - 2️⃣ — Following
   - 3️⃣ — Browse
   - 4️⃣ — Search
+- Automatically reject cookies and accept mature content banner
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
 
