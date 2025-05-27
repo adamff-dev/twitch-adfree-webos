@@ -18,8 +18,6 @@ const patchAmazonWorkerUrl =
   'https://cdn.jsdelivr.net/gh/adamff-dev/twitch-adfree-webos/src/scripts/patch_amazonworker.js';
 
 (function () {
-  'use strict';
-
   // From vaft script (https://github.com/pixeltris/TwitchAdSolutions/blob/master/vaft/vaft.user.js#L299)
   function getWasmWorkerJs(twitchBlobUrl) {
     let req = new XMLHttpRequest();
