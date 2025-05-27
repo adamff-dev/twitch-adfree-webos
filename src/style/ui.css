@@ -79,3 +79,8 @@ video {
   left: 0 !important;
   transform: unset !important;
 }
+
+.emote {
+  height: 2.6rem;
+  vertical-align: middle;
+}
