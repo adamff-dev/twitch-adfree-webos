@@ -21,7 +21,6 @@ function loadStoredConfig() {
   const storage = window.localStorage.getItem(CONFIG_KEY);
 
   if (storage === null) {
-    console.info('Config not set; using defaults.');
     return null;
   }
 
@@ -75,7 +74,6 @@ export function configWrite(key, value) {
   const oldValue =
     localConfig[key] !== undefined ? localConfig[key] : defaultConfig[key];
 
-  console.info('Changing key', key, 'from', oldValue, 'to', value);
   localConfig[key] = value;
   window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
 
