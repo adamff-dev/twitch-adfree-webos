@@ -100,21 +100,8 @@ function createOptionsPanel() {
   elmContainer.setAttribute('tabindex', 0);
 
   elmContainer.addEventListener(
-    'focus',
-    () => console.info('Options panel focused!'),
-    true
-  );
-  elmContainer.addEventListener(
-    'blur',
-    () => console.info('Options panel blurred!'),
-    true
-  );
-
-  elmContainer.addEventListener(
     'keydown',
     (evt) => {
-      console.info('Options panel key event:', evt.type, evt.keyCode);
-
       if (getKeyColor(evt.keyCode) === 'green') {
         return;
       }
@@ -165,12 +152,10 @@ function showOptionsPanel(visible) {
   visible ??= true;
 
   if (visible && !optionsPanelVisible) {
-    console.info('Showing and focusing options panel!');
     optionsPanel.style.display = 'block';
     optionsPanel.focus();
     optionsPanelVisible = true;
   } else if (!visible && optionsPanelVisible) {
-    console.info('Hiding options panel!');
     optionsPanel.style.display = 'none';
     optionsPanel.blur();
     optionsPanelVisible = false;
@@ -190,8 +175,6 @@ function handleNumberButtonsClick(keyCode) {
 }
 
 const eventHandler = (evt) => {
-  console.info('Key event:', evt.type, evt.keyCode, evt.defaultPrevented);
-
   if (Object.keys(LOGGED_IN_NAVIGATION_MAP).includes(String(evt.keyCode))) {
     handleNumberButtonsClick(evt.keyCode);
     evt.preventDefault();
@@ -200,8 +183,6 @@ const eventHandler = (evt) => {
   }
 
   if (getKeyColor(evt.keyCode) === 'green') {
-    console.info('Taking over!');
-
     evt.preventDefault();
     evt.stopPropagation();
 
