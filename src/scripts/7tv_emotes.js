@@ -9,18 +9,23 @@ import { getAuthToken, getTwitchUsername } from '../utils/utils';
 import { showNotification } from './ui';
 
 (function () {
-  'use strict';
-
+  // Constants
   const API_7TV = 'https://7tv.io/v3';
+  const CHAT_SELECTOR = 'aside.izGgTy';
   const MESSAGE_SELECTOR = 'css-175oi2r';
 
+  // Global variables
   let emoteMap = new Map();
   let currentChannelLogin = null;
   let authToken = null;
+
   async function fetch7TVEmotes(userId) {
     try {
       const res = await fetch(`${API_7TV}/users/twitch/${userId}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        emoteMap = new Map();
+        return;
+      }
 
       const data = await res.json();
       const emotes = data.emote_set?.emotes || [];
@@ -35,7 +40,6 @@ import { showNotification } from './ui';
         const url = `https:${emote.data.host.url}/1x.webp`;
         emoteMap.set(emote.name, url);
       });
-      console.log(emoteMap);
     } catch (err) {
       console.error('[7TV] Error al obtener emotes:', err);
     }
@@ -45,14 +49,24 @@ import { showNotification } from './ui';
     if (!text) return text;
 
     let replacedText = text;
-    emoteMap.forEach((url, name) => {
-      const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`\\b${escapedName}\\b`, 'g');
-      replacedText = replacedText.replace(
-        regex,
-        `<img src="${url}" alt="${name}" style="width: 28px; height: 28px; vertical-align: middle;">`
-      );
-    });
+    // Replace emote names using a split-and-rebuild approach to avoid regex issues
+    if (emoteMap.size === 0) return replacedText;
+
+    // Build a Set of emote names for fast lookup
+
+    // Split text into words and non-word separators
+    const parts = replacedText.split(/(\s+)/);
+
+    // Replace each part that matches an emote name
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const url = emoteMap.get(part);
+      if (url) {
+        parts[i] = `<img src="${url}" alt="${part}" class="emote">`;
+      }
+    }
+
+    replacedText = parts.join('');
 
     return replacedText;
   }
@@ -61,10 +75,7 @@ import { showNotification } from './ui';
       const replacedText = replaceEmotes(node.textContent);
       if (replacedText !== node.textContent) {
         const span = document.createElement('span');
-        span.innerHTML = replacedText.replace(
-          /<img /g,
-          '<img style="width: 2.4rem; height: 2.4rem; vertical-align: middle;" '
-        );
+        span.innerHTML = replacedText;
         node.replaceWith(span);
       }
     } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -74,6 +85,9 @@ import { showNotification } from './ui';
 
   function observeChat() {
     const observer = new MutationObserver((mutations) => {
+      if (!document.querySelector(CHAT_SELECTOR)) {
+        return;
+      }
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (
@@ -97,6 +111,7 @@ import { showNotification } from './ui';
       const newUsername = getTwitchUsername(window.location.href);
       if (newUsername && newUsername !== currentChannelLogin) {
         currentChannelLogin = newUsername;
+        emoteMap = new Map(); // Reset emote map for the new channel
 
         if (newUsername == 'search' || !newUsername) {
           return;
@@ -109,9 +124,9 @@ import { showNotification } from './ui';
           const response = await fetch(twitchGraphQLEndpoint, {
             method: 'POST',
             headers: {
-              'Client-ID': tvClientId, // Replace with your Twitch Client ID
+              'Client-ID': tvClientId,
               'X-Device-Id': xDeviceId,
-              Authorization: authToken, // Replace with your OAuth token
+              Authorization: authToken,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify([
@@ -134,7 +149,6 @@ import { showNotification } from './ui';
 
           if (response.ok) {
             const data = await response.json();
-            console.log(data);
             const userId = data[0]?.data?.user?.id;
             if (userId) {
               await fetch7TVEmotes(userId);
