@@ -29,6 +29,8 @@ const FOLLOWING_SELECTOR = 'a[href="/following"]';
 const DIRECTORY_SELECTOR = 'a[href="/directory"]';
 const SEARCH_SELECTOR = 'a[href="/search"]';
 
+const APP_VERSION = '1.2.7';
+
 const LOGGED_IN_NAVIGATION_MAP = {
   49: HOME_SELECTOR, // 1 button
   50: FOLLOWING_SELECTOR, // 2 button
@@ -94,47 +96,96 @@ function createConfigCheckbox(key) {
 
 function createOptionsPanel() {
   const elmContainer = document.createElement('div');
-
   elmContainer.classList.add('taf-ui-container');
-  elmContainer.style['display'] = 'none';
-  elmContainer.setAttribute('tabindex', 0);
+  elmContainer.style.display = 'none';
+  elmContainer.setAttribute('tabindex', '0');
+  elmContainer.setAttribute('role', 'dialog');
+  elmContainer.setAttribute('aria-modal', 'true');
+  elmContainer.setAttribute('aria-label', 'Twitch AdFree Settings');
+
+  // Array para almacenar todos los elementos enfocables
+  const focusableElements = [];
 
   elmContainer.addEventListener(
     'keydown',
     (evt) => {
-      if (getKeyColor(evt.keyCode) === 'green') {
-        return;
-      }
+      if (getKeyColor(evt.keyCode) === 'green') return;
+
+      const focusables = Array.from(
+        elmContainer.querySelectorAll(
+          '.taf-ui-container input[type="checkbox"]'
+        )
+      );
 
       if (evt.keyCode in ARROW_KEY_CODE) {
-        navigate(ARROW_KEY_CODE[evt.keyCode]);
-      } else if (evt.keyCode === 13) {
-        // Enter key
-        document.activeElement.click();
-      }
+        const direction = ARROW_KEY_CODE[evt.keyCode];
+        const currentIndex = focusables.indexOf(document.activeElement);
+        let nextIndex = currentIndex;
 
-      evt.preventDefault();
-      evt.stopPropagation();
+        // If no element is focused, start from the first focusable element
+        if (direction === 'down') {
+          nextIndex = (currentIndex + 1) % focusables.length;
+        } else if (direction === 'up') {
+          nextIndex =
+            (currentIndex - 1 + focusables.length) % focusables.length;
+        }
+
+        focusables[nextIndex].focus();
+        evt.preventDefault();
+        evt.stopPropagation();
+      } else if (evt.keyCode === 13) {
+        // Enter
+        document.activeElement.click();
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
     },
     true
   );
 
+  // Header section
+  const header = document.createElement('header');
   const elmHeading = document.createElement('h1');
   elmHeading.textContent = 'Twitch AdFree Settings';
-  elmContainer.appendChild(elmHeading);
-  const elmBody = document.createElement('p');
-  elmBody.textContent = 'Press [GREEN] button again to close configuration';
-  elmContainer.appendChild(elmBody);
+  header.appendChild(elmHeading);
 
-  elmContainer.appendChild(createConfigCheckbox(ENABLE_AD_BLOCK));
-  elmContainer.appendChild(createConfigCheckbox(DISABLE_ANIMATIONS));
-  elmContainer.appendChild(createConfigCheckbox(LOAD_7TV_EMOTES));
-  elmContainer.appendChild(createConfigCheckbox(SHOW_BLOCKING_ADS_MESSAGE));
-  elmContainer.appendChild(createConfigCheckbox(SHOW_CLAIM_POINTS_MESSAGE));
+  const elmSubtitle = document.createElement('p');
+  elmSubtitle.textContent = 'Press [GREEN] button again to close configuration';
+  elmSubtitle.classList.add('taf-subtitle');
+  elmContainer.appendChild(header);
+  elmContainer.appendChild(elmSubtitle);
 
-  const elmBlock = document.createElement('blockquote');
+  // Options list
+  const optionsList = document.createElement('div');
+  optionsList.classList.add('taf-options-list');
 
-  elmContainer.appendChild(elmBlock);
+  const options = [
+    ENABLE_AD_BLOCK,
+    DISABLE_ANIMATIONS,
+    LOAD_7TV_EMOTES,
+    SHOW_BLOCKING_ADS_MESSAGE,
+    SHOW_CLAIM_POINTS_MESSAGE
+  ];
+
+  options.forEach((option) => {
+    const checkboxContainer = createConfigCheckbox(option);
+    const checkboxInput = checkboxContainer.querySelector('input');
+    checkboxInput.tabIndex = 0; // Make checkbox focusable
+    optionsList.appendChild(checkboxContainer);
+    focusableElements.push(checkboxInput);
+  });
+
+  elmContainer.appendChild(optionsList);
+
+  // Footer
+  const footer = document.createElement('footer');
+  footer.classList.add('taf-footer');
+  const versionInfo = document.createElement('p');
+  versionInfo.innerHTML = `v${APP_VERSION} &mdash; <a href="https://github.com/adamff-dev" target="_blank" rel="noopener noreferrer">
+  <img src="https://github.githubassets.com/favicons/favicon.png" alt="github.com" class="github-icon">adamff-dev
+</a>`;
+  footer.appendChild(versionInfo);
+  elmContainer.appendChild(footer);
 
   return elmContainer;
 }

@@ -1,36 +1,83 @@
 .taf-ui-container {
-  position: absolute;
-  top: 10%;
-  left: 10%;
-  right: 10%;
-  bottom: 10%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  border-radius: 20px;
-  border: 2px solid white;
-  padding: 20px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90%, 700px);
+  max-height: 80vh;
+  background: rgba(20, 20, 25, 0.95);
+  color: #fff;
+  border-radius: 16px;
+  border: 1px solid #9147ff; /* Twitch purple */
+  padding: 24px;
   font-size: 1.5rem;
-  z-index: 1000;
-}
-
-.taf-ui-container :focus {
-  outline: 4px #ffffff solid;
+  z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }
 
 .taf-ui-container h1 {
-  margin: 0;
-  margin-bottom: 0.5em;
+  margin: 0 0 12px 0;
+  color: #9147ff;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.taf-subtitle {
+  margin: 0 0 24px 0;
+  color: #adadb8;
+  font-size: 1rem;
   text-align: center;
 }
 
-.taf-ui-container input[type='checkbox'] {
-  width: 2rem;
-  height: 1.5rem;
+.taf-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .taf-ui-container label {
-  display: block;
-  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.taf-ui-container input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: #9147ff;
+  cursor: pointer;
+}
+
+/* Estilo para el foco en los checkboxes */
+.taf-ui-container input[type='checkbox']:focus {
+  outline: 2px solid #b583ff;
+  outline-offset: 2px;
+}
+
+.taf-footer {
+  margin-top: auto;
+  text-align: center;
+  color: #adadb8;
+  font-size: 0.9rem;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.github-icon {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  filter: invert(100%);
+  margin-left: 5px;
+  margin-right: 4px;
 }
 
 .taf-notification-container {
