@@ -1,3 +1,7 @@
+// This script prevents the screen saver from activating while a video is playing.
+// Source: https://blog.illixion.com/2022/10/webos-prevent-screensaver/
+// Source: https://github.com/webosbrew/apps-repo/issues/60#issuecomment-1133907357
+
 const PACKAGE_NAME = 'twitch.adamffdev.v1';
 
 let bridge = new window.WebOSServiceBridge();
