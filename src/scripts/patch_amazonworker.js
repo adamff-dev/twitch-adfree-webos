@@ -112,20 +112,10 @@ self.fetch = async function (input, opt) {
     return oldFetch(input, opt);
   }
 
-  // Fix relative URL for Worker context
+  // Block relative URLs
+  // Prevents performance issues and crashes in home page of
+  // some user's channel after loading latest VOD preview
   if (url.startsWith('/')) {
-    url = self.origin ? `${self.origin}${url}` : `${location.origin}${url}`;
-
-    // Reconstruct Request if needed
-    if (input instanceof Request) {
-      input = new Request(url, input);
-    } else {
-      input = url;
-    }
-  }
-
-  // Block chunks requests
-  if (url.includes('/_next/static/chunks') && url.includes('.js')) {
     return;
   }
 
