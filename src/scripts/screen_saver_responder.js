@@ -5,7 +5,7 @@ let bridge = new window.WebOSServiceBridge();
 bridge.onservicecallback = (msg) => {
   let message = JSON.parse(msg);
   if (message.state === 'Active') {
-    const videoElement = document.querySelector('video')[0];
+    const videoElement = document.querySelector('video');
     // Only proceed if the video element exists and is currently playing;
     // otherwise, do not respond to the screen saver request.
     if (!videoElement || videoElement.paused) {
