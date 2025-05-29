@@ -97,10 +97,6 @@ async function isValidQuality(url) {
 
 const oldFetch = self.fetch;
 
-self.onSeiMessage = function (_e) {
-  return;
-};
-
 self.fetch = async function (input, opt) {
   let url;
   if (input instanceof Request) {
@@ -112,10 +108,20 @@ self.fetch = async function (input, opt) {
     return oldFetch(input, opt);
   }
 
-  // Block relative URLs
-  // Prevents performance issues and crashes in home page of
-  // some user's channel after loading latest VOD preview
+  // Fix relative URL for Worker context
   if (url.startsWith('/')) {
+    url = self.origin ? `${self.origin}${url}` : `${location.origin}${url}`;
+
+    // Reconstruct Request if needed
+    if (input instanceof Request) {
+      input = new Request(url, input);
+    } else {
+      input = url;
+    }
+  }
+
+  // Block chunks requests
+  if (url.includes('/_next/static/chunks') && url.includes('.js')) {
     return;
   }
 
