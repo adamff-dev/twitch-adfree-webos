@@ -2,8 +2,8 @@ import { CONFIG_KEY, configOptions } from './constants/config.constants';
 
 const defaultConfig = (() => {
   let ret = {};
-  for (const [k, v] of configOptions) {
-    ret[k] = v.default;
+  for (const k in configOptions) {
+    ret[k] = configOptions[k].default;
   }
   return ret;
 })();
@@ -11,7 +11,7 @@ const defaultConfig = (() => {
 /** @type {Record<string, DocumentFragment>} as const */
 const configFrags = (() => {
   let ret = {};
-  for (const k of configOptions.keys()) {
+  for (const k in configOptions) {
     ret[k] = new DocumentFragment();
   }
   return ret;
@@ -32,11 +32,10 @@ function loadStoredConfig() {
   }
 }
 
-// Use defaultConfig as a prototype so writes to localConfig don't change it.
 let localConfig = loadStoredConfig() ?? Object.create(defaultConfig);
 
 function configExists(key) {
-  return configOptions.has(key);
+  return Object.hasOwn(configOptions, key);
 }
 
 export function configGetDesc(key) {
@@ -44,7 +43,7 @@ export function configGetDesc(key) {
     throw new Error('tried to get desc for unknown config key: ' + key);
   }
 
-  return configOptions.get(key).desc;
+  return configOptions[key].desc;
 }
 
 export function configRead(key) {
@@ -84,24 +83,12 @@ export function configWrite(key, value) {
   );
 }
 
-/**
- * Add a listener for changes in the value of a specified config option
- * @param {string} key Config option to monitor
- * @param {(evt: Event) => void} callback Function to be called on change
- */
 export function configAddChangeListener(key, callback) {
   const frag = configFrags[key];
-
   frag.addEventListener('tafConfigChange', callback);
 }
 
-/**
- * Remove a listener for changes in the value of a specified config option
- * @param {string} key Config option to monitor
- * @param {(evt: Event) => void} callback Function to be called on change
- */
 export function configRemoveChangeListener(key, callback) {
   const frag = configFrags[key];
-
   frag.removeEventListener('tafConfigChange', callback);
 }

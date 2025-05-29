@@ -7,18 +7,16 @@ import {
   configGetDesc
 } from '../config.js';
 import '../style/ui.css';
-import {
-  DISABLE_ANIMATIONS,
-  ENABLE_AD_BLOCK,
-  LOAD_7TV_EMOTES,
-  SHOW_BLOCKING_ADS_MESSAGE,
-  SHOW_CLAIM_POINTS_MESSAGE
-} from '../constants/config.constants.js';
 import { APP_VERSION } from '../constants/global.constants.js';
+import {
+  configOptions,
+  DISABLE_ANIMATIONS,
+  ENABLE_AD_BLOCK
+} from '../constants/config.constants.js';
 
 // Constants for selectors
 // Note: don't use class selectors, as they can change on every twitch deployment
-const rejectCookiesSelector =
+const REJECT_COOKIES_SELECTOR =
   '[role="dialog"][aria-modal="true"] > div:last-child button:first-child';
 const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
@@ -56,6 +54,9 @@ const colorCodeMap = new Map([
   [406, 'blue'],
   [191, 'blue']
 ]);
+
+// Global variables
+let configOptionKeys = null;
 
 /**
  * Returns the name of the color button associated with a code or null if not a color button.
@@ -159,15 +160,11 @@ function createOptionsPanel() {
   const optionsList = document.createElement('div');
   optionsList.classList.add('taf-options-list');
 
-  const options = [
-    ENABLE_AD_BLOCK,
-    DISABLE_ANIMATIONS,
-    LOAD_7TV_EMOTES,
-    SHOW_BLOCKING_ADS_MESSAGE,
-    SHOW_CLAIM_POINTS_MESSAGE
-  ];
+  if (!configOptionKeys) {
+    configOptionKeys = Object.keys(configOptions);
+  }
 
-  options.forEach((option) => {
+  configOptionKeys.forEach((option) => {
     const checkboxContainer = createConfigCheckbox(option);
     const checkboxInput = checkboxContainer.querySelector('input');
     checkboxInput.tabIndex = 0; // Make checkbox focusable
@@ -320,7 +317,7 @@ function handleAdsAndConsentModals() {
     }
 
     // Auto-reject cookies if the modal is present
-    const rejectCookiesButton = document.querySelector(rejectCookiesSelector);
+    const rejectCookiesButton = document.querySelector(REJECT_COOKIES_SELECTOR);
     if (rejectCookiesButton) {
       rejectCookiesButton.click();
       showNotification('Cookie consent rejected automatically');
