@@ -21,6 +21,11 @@ let resolutions = {
     bandwidth: 3430584,
     fps: 60
   },
+  '1080p30': {
+    res: '1920x1080',
+    bandwidth: 5145876,
+    fps: 30
+  },
   '1080p60': {
     res: '1920x1080',
     bandwidth: 8438581,
@@ -28,8 +33,8 @@ let resolutions = {
   },
   chunked: {
     res: '1920x1080',
-    bandwidth: 8438581,
-    fps: 60
+    bandwidth: 5145876,
+    fps: 30
   }
 };
 
@@ -140,12 +145,12 @@ self.fetch = async function (input, opt) {
 
       const vodData = twitchVideoRes.data.video;
 
-      // Skip if the vod is not forbidden
-      const tokenAuth =
+      // Skip if the vod is not archived
+      if (
         vodData &&
-        vodData.playbackAccessToken &&
-        vodData.playbackAccessToken.authorization;
-      if (!tokenAuth || tokenAuth.isForbidden != true) {
+        vodData.broadcastType &&
+        vodData.broadcastType.toLowerCase() !== 'archive'
+      ) {
         return response;
       }
 
