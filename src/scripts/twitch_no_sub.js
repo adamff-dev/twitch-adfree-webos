@@ -1,21 +1,8 @@
-// ==UserScript==
-// @name         TwitchNoSub
-// @namespace    https://github.com/besuper/TwitchNoSub
-// @version      1.1.1
-// @description  Watch sub only VODs on Twitch
-// @author       besuper
-// @updateURL    https://raw.githubusercontent.com/besuper/TwitchNoSub/master/userscript/twitchnosub.user.js
-// @downloadURL  https://raw.githubusercontent.com/besuper/TwitchNoSub/master/userscript/twitchnosub.user.js
-// @icon         https://raw.githubusercontent.com/besuper/TwitchNoSub/master/assets/icons/icon.png
-// @match        *://*.twitch.tv/*
-// @run-at       document-end
-// @inject-into  page
-// @grant        none
-
-// ==/UserScript==
+import { APP_VERSION } from '../constants/global.constants';
 
 const patchAmazonWorkerUrl =
-  'https://cdn.jsdelivr.net/gh/adamff-dev/twitch-adfree-webos/src/scripts/patch_amazonworker.js';
+  'https://cdn.jsdelivr.net/gh/adamff-dev/twitch-adfree-webos/src/scripts/patch_amazonworker.js?v=' +
+  APP_VERSION; // For cache busting
 
 (function () {
   // From vaft script (https://github.com/pixeltris/TwitchAdSolutions/blob/master/vaft/vaft.user.js#L299)

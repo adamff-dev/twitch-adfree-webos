@@ -14,6 +14,7 @@ import {
   SHOW_BLOCKING_ADS_MESSAGE,
   SHOW_CLAIM_POINTS_MESSAGE
 } from '../constants/config.constants.js';
+import { APP_VERSION } from '../constants/global.constants.js';
 
 // Constants for selectors
 // Note: don't use class selectors, as they can change on every twitch deployment
@@ -29,8 +30,6 @@ const LOGIN_SELECTOR = 'a[href="/login"]';
 const FOLLOWING_SELECTOR = 'a[href="/following"]';
 const DIRECTORY_SELECTOR = 'a[href="/directory"]';
 const SEARCH_SELECTOR = 'a[href="/search"]';
-
-const APP_VERSION = '1.2.8';
 
 const LOGGED_IN_NAVIGATION_MAP = {
   49: HOME_SELECTOR, // 1 button
