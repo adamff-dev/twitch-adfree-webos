@@ -30,7 +30,7 @@ const FOLLOWING_SELECTOR = 'a[href="/following"]';
 const DIRECTORY_SELECTOR = 'a[href="/directory"]';
 const SEARCH_SELECTOR = 'a[href="/search"]';
 
-const APP_VERSION = '1.2.7';
+const APP_VERSION = '1.2.8';
 
 const LOGGED_IN_NAVIGATION_MAP = {
   49: HOME_SELECTOR, // 1 button
