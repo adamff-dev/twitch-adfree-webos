@@ -129,8 +129,16 @@ async function claimPointsRoutine() {
     const pointsEarned =
       claimResponse?.[0]?.data?.claimCommunityPoints?.claim?.pointsEarnedTotal;
 
-    if (typeof pointsEarned === 'number' && pointsEarned > 0) {
-      showNotification(`+${pointsEarned} community points!`, 10000);
+    const currentPoints =
+      claimResponse?.[0]?.data?.claimCommunityPoints?.currentPoints;
+
+    let message;
+    if (pointsEarned) {
+      message = `+${pointsEarned} community points!`;
+      if (currentPoints && configRead(SHOW_CLAIM_POINTS_MESSAGE)) {
+        message += `<br>Current points: ${Number(currentPoints).toLocaleString()}`;
+      }
+      showNotification(message, 10000);
     }
   } catch (error) {
     console.error('Error during claim routine:', error);
