@@ -120,11 +120,6 @@ self.fetch = async function (input, opt) {
     }
   }
 
-  // Block chunks requests
-  if (url.includes('/_next/static/chunks') && url.includes('.js')) {
-    return;
-  }
-
   // Block Sentry requests
   if (url.includes('ingest.sentry.io')) {
     return;
