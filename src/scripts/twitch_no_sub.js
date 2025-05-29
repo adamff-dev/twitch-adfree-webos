@@ -1,7 +1,7 @@
 import { APP_VERSION } from '../constants/global.constants';
 
 const patchAmazonWorkerUrl =
-  'https://cdn.jsdelivr.net/gh/adamff-dev/twitch-adfree-webos@latest/src/scripts/patch_amazonworker.js?v=' +
+  'https://cdn.statically.io/gh/adamff-dev/twitch-adfree-webos/main/src/scripts/patch_amazon_worker.js?v=' +
   APP_VERSION; // For cache busting
 
 (function () {
