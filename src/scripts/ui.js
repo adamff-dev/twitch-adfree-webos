@@ -22,6 +22,7 @@ const rejectCookiesSelector =
 const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
 const bannerAdSelector = '.r-2dbvay';
+const latestVideo = 'nav[role="navigation"] + main video';
 
 const HOME_SELECTOR = 'a[href="/"]';
 const LOGIN_SELECTOR = 'a[href="/login"]';
@@ -336,6 +337,13 @@ function handleAdsAndConsentModals() {
     ) {
       acceptAdultContentButton.previousElementSibling.click();
       showNotification('Mature content warning dismissed automatically');
+    }
+
+    // Remove the channel home latest video preview to improve performance and prevent potential crashes
+    // (This is a known Twitch bug)
+    const posterElement = document.querySelector(latestVideo);
+    if (posterElement) {
+      posterElement.remove();
     }
   });
 
