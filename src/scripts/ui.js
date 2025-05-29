@@ -252,7 +252,7 @@ export function showNotification(text, time = 7000, type = 'success') {
 
   const elm = document.createElement('div');
   const elmInner = document.createElement('div');
-  elmInner.innerText = text;
+  elmInner.innerHTML = text;
   elmInner.classList.add('message');
   elmInner.classList.add('message-hidden');
   elmInner.classList.add(`message-${type}`);
