@@ -3,7 +3,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(90%, 1000px);
+  width: 60%;
   max-height: 85vh;
   background: rgba(20, 20, 25, 0.95);
   color: #fff;
