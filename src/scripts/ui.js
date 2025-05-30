@@ -10,7 +10,7 @@ import '../style/ui.css';
 import {
   DISABLE_ANIMATIONS,
   ENABLE_AD_BLOCK,
-  LOAD_7TV_EMOTES,
+  LOAD_EMOTES,
   SHOW_BLOCKING_ADS_MESSAGE,
   SHOW_CLAIM_POINTS_MESSAGE
 } from '../constants/config.constants.js';
@@ -162,7 +162,7 @@ function createOptionsPanel() {
   const options = [
     ENABLE_AD_BLOCK,
     DISABLE_ANIMATIONS,
-    LOAD_7TV_EMOTES,
+    LOAD_EMOTES,
     SHOW_BLOCKING_ADS_MESSAGE,
     SHOW_CLAIM_POINTS_MESSAGE
   ];

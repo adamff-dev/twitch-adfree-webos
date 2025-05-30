@@ -1,5 +1,5 @@
 import { configRead } from '../config';
-import { LOAD_7TV_EMOTES } from '../constants/config.constants';
+import { LOAD_EMOTES } from '../constants/config.constants';
 import {
   tvClientId,
   twitchGraphQLEndpoint,
@@ -11,6 +11,7 @@ import { showNotification } from './ui';
 (function () {
   // Constants
   const API_7TV = 'https://7tv.io/v3';
+  const API_BTTV = 'https://api.betterttv.net/3/cached';
   const CHAT_SELECTOR = 'aside.izGgTy';
   const MESSAGE_SELECTOR = 'css-175oi2r';
 
@@ -42,6 +43,37 @@ import { showNotification } from './ui';
       });
     } catch (err) {
       console.error('[7TV] Error al obtener emotes:', err);
+    }
+  }
+
+  async function fetchBTTVEmotes(userId) {
+    try {
+      const res = await fetch(`${API_BTTV}/users/twitch/${userId}`);
+
+      if (!res.ok) {
+        showNotification('res not ok');
+        emoteMap = new Map();
+        return;
+      }
+      const data = await res.json();
+      const emotes = data.sharedEmotes || [];
+
+      if (emotes.length === 0) {
+        showNotification('no emotes found');
+        return;
+      }
+
+      showNotification('BTTV emotes loaded successfully!');
+
+      emotes.forEach((emote) => {
+        const emoteId = emote.id;
+        const imageType = emote.imageType;
+        const size = '1x';
+        const url = `https://cdn.betterttv.net/emote/${emoteId}/${size}.${imageType}`;
+        emoteMap.set(emote.code, url);
+      });
+    } catch (err) {
+      console.error('[BTTV] Error al obtener emotes:', err);
     }
   }
 
@@ -105,7 +137,7 @@ import { showNotification } from './ui';
 
   function init() {
     setInterval(async () => {
-      if (!configRead(LOAD_7TV_EMOTES)) {
+      if (!configRead(LOAD_EMOTES)) {
         return;
       }
       const newUsername = getTwitchUsername(window.location.href);
@@ -152,6 +184,7 @@ import { showNotification } from './ui';
             const userId = data[0]?.data?.user?.id;
             if (userId) {
               await fetch7TVEmotes(userId);
+              await fetchBTTVEmotes(userId);
             }
           } else {
             console.error('Error fetching user ID:', response.statusText);
