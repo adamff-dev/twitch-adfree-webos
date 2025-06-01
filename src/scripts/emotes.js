@@ -16,7 +16,8 @@ import { showNotification } from './ui';
   const MESSAGE_SELECTOR = 'css-175oi2r';
 
   // Global variables
-  let emoteMap = new Map();
+  let emoteMap7tv = new Map();
+  let emoteMapBttv = new Map();
   let currentChannelLogin = null;
   let authToken = null;
 
@@ -24,7 +25,7 @@ import { showNotification } from './ui';
     try {
       const res = await fetch(`${API_7TV}/users/twitch/${userId}`);
       if (!res.ok) {
-        emoteMap = new Map();
+        emoteMap7tv = new Map();
         return;
       }
 
@@ -39,7 +40,7 @@ import { showNotification } from './ui';
 
       emotes.forEach((emote) => {
         const url = `https:${emote.data.host.url}/1x.webp`;
-        emoteMap.set(emote.name, url);
+        emoteMap7tv.set(emote.name, url);
       });
     } catch (err) {
       console.error('[7TV] Error al obtener emotes:', err);
@@ -51,26 +52,23 @@ import { showNotification } from './ui';
       const res = await fetch(`${API_BTTV}/users/twitch/${userId}`);
 
       if (!res.ok) {
-        showNotification('res not ok');
-        emoteMap = new Map();
+        emoteMapBttv = new Map();
         return;
       }
       const data = await res.json();
-      const emotes = data.sharedEmotes || [];
 
+      const emotes = [
+        ...(data.sharedEmotes || []),
+        ...(data.channelEmotes || [])
+      ];
       if (emotes.length === 0) {
-        showNotification('no emotes found');
         return;
       }
-
       showNotification('BTTV emotes loaded successfully!');
-
+      const size = '1x';
       emotes.forEach((emote) => {
-        const emoteId = emote.id;
-        const imageType = emote.imageType;
-        const size = '1x';
-        const url = `https://cdn.betterttv.net/emote/${emoteId}/${size}.${imageType}`;
-        emoteMap.set(emote.code, url);
+        const url = `https://cdn.betterttv.net/emote/${emote.id}/${size}.${emote.imageType}`;
+        emoteMapBttv.set(emote.code, url);
       });
     } catch (err) {
       console.error('[BTTV] Error al obtener emotes:', err);
@@ -82,7 +80,7 @@ import { showNotification } from './ui';
 
     let replacedText = text;
     // Replace emote names using a split-and-rebuild approach to avoid regex issues
-    if (emoteMap.size === 0) return replacedText;
+    if (emoteMap7tv.size === 0 && emoteMapBttv.size === 0) return replacedText;
 
     // Build a Set of emote names for fast lookup
 
@@ -92,7 +90,9 @@ import { showNotification } from './ui';
     // Replace each part that matches an emote name
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
-      const url = emoteMap.get(part);
+      const url7tv = emoteMap7tv.get(part);
+      const urlBttv = emoteMapBttv.get(part);
+      const url = url7tv || urlBttv;
       if (url) {
         parts[i] = `<img src="${url}" alt="${part}" class="emote">`;
       }
@@ -143,7 +143,8 @@ import { showNotification } from './ui';
       const newUsername = getTwitchUsername(window.location.href);
       if (newUsername && newUsername !== currentChannelLogin) {
         currentChannelLogin = newUsername;
-        emoteMap = new Map(); // Reset emote map for the new channel
+        emoteMap7tv = new Map(); // Reset emote map for the new channel
+        emoteMapBttv = new Map();
 
         if (newUsername == 'search' || !newUsername) {
           return;
