@@ -26,6 +26,6 @@ export const configOptions = {
   },
   [LOAD_EMOTES]: {
     default: true,
-    desc: 'Enable loading of 7TV emotes in chat'
+    desc: 'Enable loading of 7TV and BTTV emotes in chat'
   }
 };
