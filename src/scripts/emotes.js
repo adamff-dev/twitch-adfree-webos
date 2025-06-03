@@ -10,6 +10,7 @@ import { showNotification } from './ui';
 
 (function () {
   // Constants
+  const EMOTE_SIZE = '1x';
   const API_7TV = 'https://7tv.io/v3';
   const API_BTTV = 'https://api.betterttv.net/3/cached';
   const CHAT_SELECTOR = 'aside.izGgTy';
@@ -39,7 +40,7 @@ import { showNotification } from './ui';
       showNotification('7TV emotes loaded successfully!');
 
       emotes.forEach((emote) => {
-        const url = `https:${emote.data.host.url}/1x.webp`;
+        const url = `https:${emote.data.host.url}/${EMOTE_SIZE}.webp`;
         emoteMap7tv.set(emote.name, url);
       });
     } catch (err) {
@@ -65,9 +66,8 @@ import { showNotification } from './ui';
         return;
       }
       showNotification('BTTV emotes loaded successfully!');
-      const size = '1x';
       emotes.forEach((emote) => {
-        const url = `https://cdn.betterttv.net/emote/${emote.id}/${size}.${emote.imageType}`;
+        const url = `https://cdn.betterttv.net/emote/${emote.id}/${EMOTE_SIZE}.${emote.imageType}`;
         emoteMapBttv.set(emote.code, url);
       });
     } catch (err) {
