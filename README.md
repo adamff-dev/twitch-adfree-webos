@@ -28,7 +28,7 @@ If you find this project helpful and want to support its development, consider m
 
 Your support helps keep the project active and maintained. Thank you! 🙌
 
-<a href="https://www.buymeacoffee.com/rSiZtB3"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=rSiZtB3&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+<a target="_blank" href="https://www.buymeacoffee.com/rSiZtB3"><img style="width: 200px" src="https://i.imgur.com/KCk0bxY.png" /></a>
 
 ## Installation
 

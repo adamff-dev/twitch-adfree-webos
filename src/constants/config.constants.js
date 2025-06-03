@@ -4,7 +4,7 @@ export const DISABLE_ANIMATIONS = 'disableAnimations';
 export const SHOW_CLAIM_POINTS_MESSAGE = 'showClaimPointsMessage';
 export const SHOW_CURRENT_POINTS = 'showCurrentPoints';
 export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
-export const LOAD_7TV_EMOTES = 'load7TVEmotes';
+export const LOAD_EMOTES = 'loadEmotes';
 
 export const configOptions = {
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
@@ -24,7 +24,7 @@ export const configOptions = {
     default: true,
     desc: 'Show your current channel points in the claim notification'
   },
-  [LOAD_7TV_EMOTES]: {
+  [LOAD_EMOTES]: {
     default: true,
     desc: 'Enable loading of 7TV emotes in chat'
   }
