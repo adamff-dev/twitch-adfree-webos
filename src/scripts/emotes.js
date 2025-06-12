@@ -13,8 +13,8 @@ import { showNotification } from './ui';
   const EMOTE_SIZE = '1x';
   const API_7TV = 'https://7tv.io/v3';
   const API_BTTV = 'https://api.betterttv.net/3/cached';
-  const CHAT_SELECTOR = 'aside.izGgTy';
-  const MESSAGE_SELECTOR = 'css-175oi2r';
+  const CHAT_SELECTOR = 'main > aside';
+  const MESSAGE_SELECTOR = 'r-1xq2hnv';
 
   // Global variables
   let emoteMap7tv = new Map();
