@@ -33,6 +33,16 @@ Your support helps keep the project active and maintained. Thank you! 🙌
   <a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=3T9XNAPWW36Z2"><img style="height: 50px" src="https://i.imgur.com/Z3x38ey.png" /></a>
 </div>
 
+## Cryptocurrency Donations
+
+You can also support the project with cryptocurrency:
+
+- **Bitcoin:** `bc1qrcdyq2yjgv5alm9kky2e6vyfhnafn3wgd2gjls`
+- **Ethereum:** `0x43b9649985d6789452abe23beb1eb610cee88817`
+- **Monero:** `43qZw2PJ6mS6G1RX63qXV6Lah7vpPHrqGDYotLkheL176CNtYei5anhjXgKDkhJMNx16WFGdtCycyCRSppwTyfeSSQHd42T`
+- **Solana:** `4qK7eSQemRj85VY9CQp5XHRwX5fNjoSJ1ou4gmqk6jtM`
+- **Litecoin:** `ltc1qp6mya23a73n36dc7r0tfwfphn2v53phmhen99j`
+
 ## Installation
 
 - Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/adamff-dev/twitch-adfree-webos/releases) for a
