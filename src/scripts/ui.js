@@ -18,6 +18,7 @@ import {
 // Note: don't use class selectors, as they can change on every twitch deployment
 const REJECT_COOKIES_SELECTOR =
   '[role="dialog"][aria-modal="true"] > div:last-child button:first-child';
+const MODAL_SVG_SELECTOR = '[role="dialog"][aria-modal="true"] svg';
 const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
 const bannerAdSelector = '.r-2dbvay';
@@ -318,7 +319,8 @@ function handleAdsAndConsentModals() {
 
     // Auto-reject cookies if the modal is present
     const rejectCookiesButton = document.querySelector(REJECT_COOKIES_SELECTOR);
-    if (rejectCookiesButton) {
+    const modalSvg = document.querySelector(MODAL_SVG_SELECTOR);
+    if (rejectCookiesButton && modalSvg) {
       rejectCookiesButton.click();
       showNotification('Cookie consent rejected automatically');
     }
