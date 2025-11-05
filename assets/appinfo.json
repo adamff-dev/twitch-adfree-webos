@@ -5,10 +5,10 @@
   "type": "web",
   "main": "index.html",
   "title": "Twitch AdFree",
-  "icon": "icon.jpg",
+  "icon": "icon.png",
   "splashBackground": "splash.png",
-  "largeIcon": "largeIcon.jpg",
-  "iconColor": "#00000",
+  "largeIcon": "largeIcon.png",
+  "iconColor": "#000000",
   "vendorExtension": {
     "userAgent": "$browserName$/$browserVersion$ ($platformName$-$platformVersion$), _TV_O18/$firmwareVersion$ (LG, $modelName$, $networkMode$)",
     "allowCrossDomain": true
