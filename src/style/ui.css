@@ -168,4 +168,7 @@ body.with-chat-overlay aside.sc-efdc0320-1 .sc-3fdb8c5c-0,
 body.with-chat-overlay aside.sc-efdc0320-1 .css-g5y9jx {
   background-color: transparent !important;
 }
+body.with-chat-overlay aside.sc-efdc0320-1 .sc-fb07d9f1-0 {
+  display: none !important;
+}
 /* #endregion Chat overlay */
