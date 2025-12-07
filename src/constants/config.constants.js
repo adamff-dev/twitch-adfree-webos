@@ -5,6 +5,7 @@ export const SHOW_CLAIM_POINTS_MESSAGE = 'showClaimPointsMessage';
 export const SHOW_CURRENT_POINTS = 'showCurrentPoints';
 export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
 export const LOAD_EMOTES = 'loadEmotes';
+export const ENABLE_CHAT_OVERLAY = 'enableChatOverlay';
 
 export const configOptions = {
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
@@ -27,5 +28,9 @@ export const configOptions = {
   [LOAD_EMOTES]: {
     default: true,
     desc: 'Enable loading of 7TV and BTTV emotes in chat'
+  },
+  [ENABLE_CHAT_OVERLAY]: {
+    default: true,
+    desc: 'Display chat as a transparent overlay on top of the video'
   }
 };

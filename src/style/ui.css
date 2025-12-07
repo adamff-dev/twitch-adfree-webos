@@ -121,3 +121,44 @@
   height: 2.6rem;
   vertical-align: middle;
 }
+
+/* #region Chat overlay --- */
+body.with-chat-overlay main.sc-2834cd26-0,
+body.with-chat-overlay section.sc-efdc0320-0 {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  z-index: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #000 !important;
+}
+body.with-chat-overlay section.sc-efdc0320-0 video {
+  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+body.with-chat-overlay aside.sc-efdc0320-1 {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  width: 350px !important;
+  z-index: 10 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-left: none !important;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px #000 !important;
+  color: #fff !important;
+}
+body.with-chat-overlay aside.sc-efdc0320-1 .Layout-sc-1xcs6mc-0,
+body.with-chat-overlay aside.sc-efdc0320-1 .sc-3fdb8c5c-0,
+body.with-chat-overlay aside.sc-efdc0320-1 .css-g5y9jx {
+  background-color: transparent !important;
+}
+/* #endregion Chat overlay */

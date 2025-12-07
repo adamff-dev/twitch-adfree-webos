@@ -11,7 +11,8 @@ import { APP_VERSION } from '../constants/global.constants.js';
 import {
   configOptions,
   DISABLE_ANIMATIONS,
-  ENABLE_AD_BLOCK
+  ENABLE_AD_BLOCK,
+  ENABLE_CHAT_OVERLAY
 } from '../constants/config.constants.js';
 
 // Constants for selectors
@@ -58,6 +59,18 @@ const colorCodeMap = new Map([
 
 // Global variables
 let configOptionKeys = null;
+
+// Function to apply/remove chat overlay styles
+function applyChatOverlay(enable) {
+  const styleClass = 'with-chat-overlay';
+  let existingStyle = document.getElementsByClassName(styleClass);
+
+  if (enable && existingStyle.length === 0) {
+    document.body.classList.add(styleClass);
+  } else if (!enable && existingStyle.length > 0) {
+    document.body.classList.remove(styleClass);
+  }
+}
 
 /**
  * Returns the name of the color button associated with a code or null if not a color button.
@@ -357,10 +370,21 @@ function initKeyListeners() {
   document.addEventListener('keyup', eventHandler, true);
 }
 
+function initChatOverlay() {
+  // Apply initial state
+  applyChatOverlay(configRead(ENABLE_CHAT_OVERLAY));
+
+  // Listen for changes
+  configAddChangeListener(ENABLE_CHAT_OVERLAY, (evt) => {
+    applyChatOverlay(evt.detail.newValue);
+  });
+}
+
 function init() {
   handleAdsAndConsentModals();
   initRemoveAnimations();
   initKeyListeners();
+  initChatOverlay();
 
   showNotification('Press [GREEN] button to open configuration', 5000, 'info');
 }
