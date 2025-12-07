@@ -12,7 +12,8 @@ import {
   configOptions,
   DISABLE_ANIMATIONS,
   ENABLE_AD_BLOCK,
-  ENABLE_CHAT_OVERLAY
+  ENABLE_CHAT_OVERLAY,
+  CHAT_OVERLAY_LEFT
 } from '../constants/config.constants.js';
 
 // Constants for selectors
@@ -67,8 +68,20 @@ function applyChatOverlay(enable) {
 
   if (enable && existingStyle.length === 0) {
     document.body.classList.add(styleClass);
+    applyChatPosition();
   } else if (!enable && existingStyle.length > 0) {
     document.body.classList.remove(styleClass);
+    document.body.classList.remove('chat-left');
+  }
+}
+
+// Function to apply chat position (left or right)
+function applyChatPosition() {
+  const isLeft = configRead(CHAT_OVERLAY_LEFT);
+  if (isLeft) {
+    document.body.classList.add('chat-left');
+  } else {
+    document.body.classList.remove('chat-left');
   }
 }
 
@@ -377,6 +390,13 @@ function initChatOverlay() {
   // Listen for changes
   configAddChangeListener(ENABLE_CHAT_OVERLAY, (evt) => {
     applyChatOverlay(evt.detail.newValue);
+  });
+
+  // Listen for chat position changes
+  configAddChangeListener(CHAT_OVERLAY_LEFT, () => {
+    if (configRead(ENABLE_CHAT_OVERLAY)) {
+      applyChatPosition();
+    }
   });
 }
 

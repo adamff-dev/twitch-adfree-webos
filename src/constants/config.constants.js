@@ -6,6 +6,7 @@ export const SHOW_CURRENT_POINTS = 'showCurrentPoints';
 export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
 export const LOAD_EMOTES = 'loadEmotes';
 export const ENABLE_CHAT_OVERLAY = 'enableChatOverlay';
+export const CHAT_OVERLAY_LEFT = 'chatOverlayLeft';
 
 export const configOptions = {
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
@@ -32,5 +33,9 @@ export const configOptions = {
   [ENABLE_CHAT_OVERLAY]: {
     default: true,
     desc: 'Display chat as a transparent overlay on top of the video'
+  },
+  [CHAT_OVERLAY_LEFT]: {
+    default: false,
+    desc: 'Position chat overlay on the left side (default is right)'
   }
 };
