@@ -2,24 +2,24 @@ export const CONFIG_KEY = 'taf-configuration';
 export const ENABLE_AD_BLOCK = 'enableAdBlock';
 export const DISABLE_ANIMATIONS = 'disableAnimations';
 export const SHOW_CLAIM_POINTS_MESSAGE = 'showClaimPointsMessage';
-export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
 export const LOAD_EMOTES = 'loadEmotes';
 export const ENABLE_CHAT_OVERLAY = 'enableChatOverlay';
 export const CHAT_POSITION = 'chatPosition';
 export const CHAT_OVERLAY_WIDTH = 'chatOverlayWidth';
 export const CHAT_OVERLAY_HEIGHT = 'chatOverlayHeight';
 export const CHAT_OVERLAY_FONT_SIZE = 'chatOverlayFontSize';
+export const ENABLE_LOW_LATENCY = 'enableLowLatency';
 export const ACTION_RESET_CONFIG = 'actionResetConfig';
 
 export const configOptions = {
+  [ENABLE_LOW_LATENCY]: {
+    default: false,
+    desc: 'Enable low latency mode to reduce stream delay'
+  },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {
     default: true,
     desc: 'Turn off UI animations for improved performance'
-  },
-  [SHOW_BLOCKING_ADS_MESSAGE]: {
-    default: true,
-    desc: 'Display a message while ads are being blocked'
   },
   [SHOW_CLAIM_POINTS_MESSAGE]: {
     default: true,

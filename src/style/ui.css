@@ -35,14 +35,14 @@
 .taf-options-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
   margin-bottom: 24px;
 }
 
 .taf-ui-container label {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   cursor: pointer;
   padding: 8px 12px;
   border-radius: 8px;
@@ -205,3 +205,18 @@ body.with-chat-overlay aside.sc-efdc0320-1 .sc-fb07d9f1-0 {
   display: none !important;
 }
 /* #endregion Chat overlay */
+
+/* Low Latency Banner */
+.taf-low-latency-banner {
+  display: none;
+  z-index: 99999;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border-radius: 5px;
+  padding: 5px;
+  color: red;
+  font-family: Monaco, monospace;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.75);
+}
