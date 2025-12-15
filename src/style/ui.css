@@ -4,7 +4,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 60%;
-  max-height: 85vh;
+  max-height: 95vh;
   background: rgba(20, 20, 25, 0.95);
   color: #fff;
   border-radius: 16px;
@@ -58,6 +58,23 @@
 /* Estilo para el foco en los checkboxes */
 .taf-ui-container input[type='checkbox']:focus {
   outline: 2px solid #b583ff;
+  outline-offset: 2px;
+}
+
+/* Match focus style for arrow buttons */
+.taf-number-arrows button,
+.taf-reset-config-btn {
+  margin-left: 8px;
+}
+
+.taf-number-arrows button,
+.taf-reset-config-btn::first-letter {
+  color: #c097ff !important;
+}
+
+.taf-number-arrows button:focus,
+.taf-reset-config-btn:focus {
+  outline: 2px solid #b583ff !important;
   outline-offset: 2px;
 }
 
@@ -137,18 +154,18 @@ body.with-chat-overlay section.sc-efdc0320-0 {
   margin: 0 !important;
   background: #000 !important;
 }
+
 body.with-chat-overlay section.sc-efdc0320-0 video {
   object-fit: contain !important;
   width: 100% !important;
   height: 100% !important;
 }
+
 body.with-chat-overlay aside.sc-efdc0320-1 {
   position: fixed !important;
-  top: 0 !important;
   right: 0 !important;
-  bottom: 0 !important;
-  height: 100vh !important;
-  width: 350px !important;
+  height: calc(var(--taf-chat-height, 100) * 1vh) !important;
+  width: calc(var(--taf-chat-width, 380) * 1px) !important;
   z-index: 10 !important;
   background-color: rgba(0, 0, 0, 0.5) !important;
   border-left: none !important;
@@ -156,12 +173,28 @@ body.with-chat-overlay aside.sc-efdc0320-1 {
   text-shadow: 1px 1px 2px #000 !important;
   color: #fff !important;
 }
+
+body.with-chat-overlay .r-ongcgc {
+  font-size: calc(var(--taf-chat-font-size, 25) * 1px) !important;
+}
+
 body.with-chat-overlay.chat-left aside.sc-efdc0320-1 {
   right: auto !important;
   left: 0 !important;
   border-left: none !important;
   border-right: none !important;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Vertical alignment */
+body.with-chat-overlay.chat-top aside.sc-efdc0320-1 {
+  top: 0 !important;
+  bottom: auto !important;
+}
+body.with-chat-overlay.chat-bottom aside.sc-efdc0320-1 {
+  bottom: 0 !important;
+  top: auto !important;
+  overflow: hidden !important;
 }
 body.with-chat-overlay aside.sc-efdc0320-1 .Layout-sc-1xcs6mc-0,
 body.with-chat-overlay aside.sc-efdc0320-1 .sc-3fdb8c5c-0,

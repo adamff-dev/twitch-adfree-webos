@@ -13,7 +13,11 @@ import {
   DISABLE_ANIMATIONS,
   ENABLE_AD_BLOCK,
   ENABLE_CHAT_OVERLAY,
-  CHAT_OVERLAY_LEFT
+  CHAT_POSITION,
+  CHAT_OVERLAY_WIDTH,
+  CHAT_OVERLAY_HEIGHT,
+  CHAT_OVERLAY_FONT_SIZE,
+  ACTION_RESET_CONFIG
 } from '../constants/config.constants.js';
 
 // Constants for selectors
@@ -77,11 +81,48 @@ function applyChatOverlay(enable) {
 
 // Function to apply chat position (left or right)
 function applyChatPosition() {
-  const isLeft = configRead(CHAT_OVERLAY_LEFT);
-  if (isLeft) {
+  const pos = String(configRead(CHAT_POSITION));
+  // Reset classes
+  document.body.classList.remove('chat-left', 'chat-top', 'chat-bottom');
+
+  const [vertical, horizontal] = (() => {
+    switch (pos) {
+      case 'Top Left':
+        return ['top', 'left'];
+      case 'Top Right':
+        return ['top', 'right'];
+      case 'Bottom Left':
+        return ['bottom', 'left'];
+      case 'Bottom Right':
+      default:
+        return ['bottom', 'right'];
+    }
+  })();
+
+  if (horizontal === 'left') {
     document.body.classList.add('chat-left');
+  }
+  if (vertical === 'top') {
+    document.body.classList.add('chat-top');
   } else {
-    document.body.classList.remove('chat-left');
+    document.body.classList.add('chat-bottom');
+  }
+}
+
+// Function to apply chat sizing variables
+function applyChatSizing() {
+  const widthPx = Number(configRead(CHAT_OVERLAY_WIDTH));
+  const heightVh = Number(configRead(CHAT_OVERLAY_HEIGHT));
+  const fontPx = Number(configRead(CHAT_OVERLAY_FONT_SIZE));
+
+  if (!Number.isNaN(widthPx)) {
+    document.body.style.setProperty('--taf-chat-width', String(widthPx));
+  }
+  if (!Number.isNaN(heightVh)) {
+    document.body.style.setProperty('--taf-chat-height', String(heightVh));
+  }
+  if (!Number.isNaN(fontPx)) {
+    document.body.style.setProperty('--taf-chat-font-size', String(fontPx));
   }
 }
 
@@ -100,24 +141,130 @@ function getKeyColor(keyCode) {
 
 function createConfigCheckbox(key) {
   const elmInput = document.createElement('input');
-  elmInput.type = 'checkbox';
-  elmInput.checked = configRead(key);
+  const isBoolean = typeof configOptions[key].default === 'boolean';
+  elmInput.type = isBoolean ? 'checkbox' : 'hidden';
+  if (isBoolean) {
+    elmInput.checked = configRead(key);
+  }
 
   /** @type {(evt: Event) => void} */
   const changeHandler = (evt) => {
-    configWrite(key, evt.target.checked);
+    if (isBoolean) {
+      configWrite(key, evt.target.checked);
+    }
   };
 
   elmInput.addEventListener('change', changeHandler);
 
+  let valueSpan = null;
   configAddChangeListener(key, (evt) => {
-    elmInput.checked = evt.detail.newValue;
+    if (isBoolean) {
+      elmInput.checked = evt.detail.newValue;
+    } else if (valueSpan) {
+      valueSpan.textContent = String(evt.detail.newValue);
+    }
   });
 
   const elmLabel = document.createElement('label');
   elmLabel.appendChild(elmInput);
   // Use non-breaking space (U+00A0)
   elmLabel.appendChild(document.createTextNode('\u00A0' + configGetDesc(key)));
+
+  if (key === ACTION_RESET_CONFIG) {
+    // Action button: Reset configuration
+    const actionBtn = document.createElement('button');
+    actionBtn.type = 'button';
+    actionBtn.classList.add('taf-reset-config-btn');
+    actionBtn.textContent = '▶ Execute';
+    actionBtn.addEventListener('click', () => {
+      Object.keys(configOptions).forEach((k) => {
+        const def = configOptions[k].default;
+        if (def !== null) {
+          configWrite(k, def);
+        }
+      });
+      showNotification('Configuration restored to defaults', 4000, 'info');
+    });
+    actionBtn.tabIndex = 0;
+
+    const btnContainer = document.createElement('span');
+    btnContainer.classList.add('taf-number-arrows');
+    btnContainer.appendChild(document.createTextNode(' '));
+    btnContainer.appendChild(actionBtn);
+    elmLabel.appendChild(btnContainer);
+  } else if (!isBoolean) {
+    // Arrow buttons and value display for numeric settings
+    const container = document.createElement('span');
+    container.classList.add('taf-number-arrows');
+
+    const decBtn = document.createElement('button');
+    decBtn.type = 'button';
+    decBtn.textContent = '◀';
+    const incBtn = document.createElement('button');
+    incBtn.type = 'button';
+    incBtn.textContent = '▶';
+    valueSpan = document.createElement('span');
+    valueSpan.classList.add('taf-number-value');
+    valueSpan.textContent = String(configRead(key));
+
+    const getDelta = () => {
+      switch (key) {
+        case CHAT_OVERLAY_WIDTH:
+          return 10; // fine adjustments via arrows
+        case CHAT_OVERLAY_HEIGHT:
+          return 5;
+        case CHAT_OVERLAY_FONT_SIZE:
+          return 1;
+        default:
+          return 1;
+      }
+    };
+
+    const cyclePosition = (dir) => {
+      const positions = [
+        'Top Left',
+        'Top Right',
+        'Bottom Left',
+        'Bottom Right'
+      ];
+      const current = String(configRead(CHAT_POSITION));
+      const idx = positions.indexOf(current);
+      const nextIdx =
+        (idx + (dir === 'next' ? 1 : -1) + positions.length) % positions.length;
+      const next = positions[nextIdx];
+      configWrite(CHAT_POSITION, next);
+      valueSpan.textContent = next;
+    };
+
+    if (key === CHAT_POSITION) {
+      valueSpan.textContent = String(configRead(CHAT_POSITION));
+      decBtn.addEventListener('click', () => cyclePosition('prev'));
+      incBtn.addEventListener('click', () => cyclePosition('next'));
+    } else {
+      decBtn.addEventListener('click', () => {
+        const current = Number(configRead(key));
+        const next = Math.max(0, current - getDelta());
+        configWrite(key, next);
+      });
+      incBtn.addEventListener('click', () => {
+        const current = Number(configRead(key));
+        const next = current + getDelta();
+        configWrite(key, next);
+      });
+    }
+
+    // Make focusable for remote navigation
+    decBtn.tabIndex = 0;
+    incBtn.tabIndex = 0;
+
+    container.appendChild(document.createTextNode(' '));
+    container.appendChild(decBtn);
+    container.appendChild(document.createTextNode(' '));
+    container.appendChild(valueSpan);
+    container.appendChild(document.createTextNode(' '));
+    container.appendChild(incBtn);
+    elmLabel.appendChild(container);
+  }
 
   return elmLabel;
 }
@@ -141,7 +288,7 @@ function createOptionsPanel() {
 
       const focusables = Array.from(
         elmContainer.querySelectorAll(
-          '.taf-ui-container input[type="checkbox"]'
+          '.taf-ui-container input[type="checkbox"], .taf-ui-container button'
         )
       );
 
@@ -151,9 +298,9 @@ function createOptionsPanel() {
         let nextIndex = currentIndex;
 
         // If no element is focused, start from the first focusable element
-        if (direction === 'down') {
+        if (['down', 'right'].includes(direction)) {
           nextIndex = (currentIndex + 1) % focusables.length;
-        } else if (direction === 'up') {
+        } else if (['up', 'left'].includes(direction)) {
           nextIndex =
             (currentIndex - 1 + focusables.length) % focusables.length;
         }
@@ -178,7 +325,8 @@ function createOptionsPanel() {
   header.appendChild(elmHeading);
 
   const elmSubtitle = document.createElement('p');
-  elmSubtitle.textContent = 'Press [GREEN] button again to close configuration';
+  elmSubtitle.textContent =
+    'Press [GREEN] to close; use buttons to adjust settings';
   elmSubtitle.classList.add('taf-subtitle');
   elmContainer.appendChild(header);
   elmContainer.appendChild(elmSubtitle);
@@ -386,6 +534,9 @@ function initKeyListeners() {
 function initChatOverlay() {
   // Apply initial state
   applyChatOverlay(configRead(ENABLE_CHAT_OVERLAY));
+  if (configRead(ENABLE_CHAT_OVERLAY)) {
+    applyChatSizing();
+  }
 
   // Listen for changes
   configAddChangeListener(ENABLE_CHAT_OVERLAY, (evt) => {
@@ -393,10 +544,24 @@ function initChatOverlay() {
   });
 
   // Listen for chat position changes
-  configAddChangeListener(CHAT_OVERLAY_LEFT, () => {
+  configAddChangeListener(CHAT_POSITION, () => {
     if (configRead(ENABLE_CHAT_OVERLAY)) {
       applyChatPosition();
     }
+  });
+
+  // Listen for chat sizing changes
+  const sizingKeys = [
+    CHAT_OVERLAY_WIDTH,
+    CHAT_OVERLAY_HEIGHT,
+    CHAT_OVERLAY_FONT_SIZE
+  ];
+  sizingKeys.forEach((k) => {
+    configAddChangeListener(k, () => {
+      if (configRead(ENABLE_CHAT_OVERLAY)) {
+        applyChatSizing();
+      }
+    });
   });
 }
 

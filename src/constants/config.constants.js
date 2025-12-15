@@ -2,11 +2,14 @@ export const CONFIG_KEY = 'taf-configuration';
 export const ENABLE_AD_BLOCK = 'enableAdBlock';
 export const DISABLE_ANIMATIONS = 'disableAnimations';
 export const SHOW_CLAIM_POINTS_MESSAGE = 'showClaimPointsMessage';
-export const SHOW_CURRENT_POINTS = 'showCurrentPoints';
 export const SHOW_BLOCKING_ADS_MESSAGE = 'showBlockingAdsMessage';
 export const LOAD_EMOTES = 'loadEmotes';
 export const ENABLE_CHAT_OVERLAY = 'enableChatOverlay';
-export const CHAT_OVERLAY_LEFT = 'chatOverlayLeft';
+export const CHAT_POSITION = 'chatPosition';
+export const CHAT_OVERLAY_WIDTH = 'chatOverlayWidth';
+export const CHAT_OVERLAY_HEIGHT = 'chatOverlayHeight';
+export const CHAT_OVERLAY_FONT_SIZE = 'chatOverlayFontSize';
+export const ACTION_RESET_CONFIG = 'actionResetConfig';
 
 export const configOptions = {
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
@@ -22,10 +25,6 @@ export const configOptions = {
     default: true,
     desc: 'Display a notification when channel points are claimed'
   },
-  [SHOW_CURRENT_POINTS]: {
-    default: true,
-    desc: 'Show your current channel points in the claim notification'
-  },
   [LOAD_EMOTES]: {
     default: true,
     desc: 'Enable loading of 7TV and BTTV emotes in chat'
@@ -34,8 +33,24 @@ export const configOptions = {
     default: true,
     desc: 'Display chat as a transparent overlay on top of the video'
   },
-  [CHAT_OVERLAY_LEFT]: {
-    default: false,
-    desc: 'Position chat overlay on the left side (default is right)'
+  [CHAT_POSITION]: {
+    default: 'Bottom Right',
+    desc: 'Chat position'
+  },
+  [CHAT_OVERLAY_WIDTH]: {
+    default: 380,
+    desc: 'Chat overlay width in pixels'
+  },
+  [CHAT_OVERLAY_HEIGHT]: {
+    default: 100,
+    desc: 'Chat overlay height in percent'
+  },
+  [CHAT_OVERLAY_FONT_SIZE]: {
+    default: 25,
+    desc: 'Chat text size in pixels'
+  },
+  [ACTION_RESET_CONFIG]: {
+    default: null,
+    desc: 'Reset configuration to defaults'
   }
 };
