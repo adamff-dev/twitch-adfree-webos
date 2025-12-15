@@ -1,24 +1,30 @@
 # Twitch AdFree
 
-A webOS application for Twitch that hides and mutes ads, automatically claims channel points and unlocks sub-only VODs.
+A webOS application that enhances your Twitch viewing experience by blocking ads, automatically claiming channel points, bypassing subscriber-only VOD restrictions, and providing additional features like emote support and improved chat styles.
 
 Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
 
 ## Features
 
-- Hides and mutes ads
-- Automatically claims community points during streams
-- View sub-only VODs without a subscription
-- Integrated support for 7TV and BTTV emotes
-- Disable animations to improve performance
-- You can now navigate through the top navigation buttons using the number keys 1 to 4:
+- **Ad Blocking:** Mute and hide ads automatically
+- **Channel Points:** Automatically claims community points during streams
+- **Sub-only VODs:** View subscriber-only VODs without a subscription
+- **Emote Support:** Integrated support for 7TV and BTTV emotes in chat
+- **Performance:** Disable animations to improve performance on lower-end devices
+- **Auto-Accept:** Automatically reject cookies and accept mature content banner
+- **Chat Overlay:** Display chat as a transparent overlay on top of the video with customizable position, size, and font settings
+- **Status Messages:** Optional notifications for blocked ads and claimed channel points
+- **Navigation Shortcuts:** Navigate through top navigation using number keys:
   - 1️⃣ — Home
   - 2️⃣ — Following
   - 3️⃣ — Browse
   - 4️⃣ — Search
-- Automatically reject cookies and accept mature content banner
 
 **Note:** Configuration screen can be opened by pressing 🟩 GREEN button on the remote.
+
+## Screenshots
+
+![Settings Screen](https://raw.githubusercontent.com/adamff-dev/twitch-adfree-webos/refs/heads/main/screenshots/settings.png)
 
 ## Contribution
 
