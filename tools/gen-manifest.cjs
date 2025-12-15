@@ -21,7 +21,8 @@ fs.writeFileSync(
     type: appinfo.type,
     title: appinfo.title,
     // appDescription: appinfo.appDescription,
-    iconUri: 'https://github.com/adamff-dev/twitch-adfree-webos/largeIcon.png',
+    iconUri:
+      'https://raw.githubusercontent.com/adamff-dev/twitch-adfree-webos/refs/heads/main/assets/largeIcon.png',
     sourceUrl: 'https://github.com/adamff-dev/twitch-adfree-webos',
     rootRequired: false,
     ipkUrl: ipkfile,
