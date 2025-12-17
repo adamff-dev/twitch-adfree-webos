@@ -15,7 +15,7 @@ export const ACTION_RESET_CONFIG = 'actionResetConfig';
 export const configOptions = {
   [ENABLE_LOW_LATENCY]: {
     default: false,
-    desc: 'Enable low latency mode to reduce stream delay'
+    desc: 'Enable low latency mode (experimental)'
   },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {
