@@ -1,5 +1,12 @@
+const twitchUrl = 'https://lg.tv.twitch.tv/';
+
 export function handleLaunch() {
-  window.location.href = 'https://lg.tv.twitch.tv/';
+  // Example luna-send command to launch the app with a specific channel:
+  // luna-send -n 1 -f luna://com.webos.applicationManager/launch '{"id":"twitch.adamffdev.v1", "params":{"channel":"illojuan"}}'
+  const params = new URLSearchParams(window.location.search);
+  const contentTarget = params.get('channel') || '';
+
+  window.location.href = `${twitchUrl}${contentTarget}`;
 }
 
 handleLaunch();
