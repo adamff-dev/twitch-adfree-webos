@@ -167,7 +167,7 @@ body.with-chat-overlay aside.sc-efdc0320-1 {
   height: calc(var(--taf-chat-height, 100) * 1vh) !important;
   width: calc(var(--taf-chat-width, 380) * 1px) !important;
   z-index: 10 !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
+  background-color: rgba(0, 0, 0, var(--taf-chat-transparency, 0.5)) !important;
   border-left: none !important;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
   text-shadow: 1px 1px 2px #000 !important;

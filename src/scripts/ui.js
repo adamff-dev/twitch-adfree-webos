@@ -17,6 +17,7 @@ import {
   CHAT_OVERLAY_WIDTH,
   CHAT_OVERLAY_HEIGHT,
   CHAT_OVERLAY_FONT_SIZE,
+  CHAT_OVERLAY_TRANSPARENCY,
   ACTION_RESET_CONFIG
 } from '../constants/config.constants.js';
 
@@ -114,6 +115,7 @@ function applyChatSizing() {
   const widthPx = Number(configRead(CHAT_OVERLAY_WIDTH));
   const heightVh = Number(configRead(CHAT_OVERLAY_HEIGHT));
   const fontPx = Number(configRead(CHAT_OVERLAY_FONT_SIZE));
+  const transparency = Number(configRead(CHAT_OVERLAY_TRANSPARENCY));
 
   if (!Number.isNaN(widthPx)) {
     document.body.style.setProperty('--taf-chat-width', String(widthPx));
@@ -123,6 +125,11 @@ function applyChatSizing() {
   }
   if (!Number.isNaN(fontPx)) {
     document.body.style.setProperty('--taf-chat-font-size', String(fontPx));
+  }
+  if (!Number.isNaN(transparency)) {
+    // Convert 0-100 to 0.0-1.0 for CSS opacity
+    const opacity = transparency / 100;
+    document.body.style.setProperty('--taf-chat-transparency', String(opacity));
   }
 }
 
@@ -215,6 +222,8 @@ function createConfigCheckbox(key) {
           return 5;
         case CHAT_OVERLAY_FONT_SIZE:
           return 1;
+        case CHAT_OVERLAY_TRANSPARENCY:
+          return 5;
         default:
           return 1;
       }
@@ -248,7 +257,11 @@ function createConfigCheckbox(key) {
       });
       incBtn.addEventListener('click', () => {
         const current = Number(configRead(key));
-        const next = current + getDelta();
+        let next = current + getDelta();
+        // Cap transparency at 100%
+        if (key === CHAT_OVERLAY_TRANSPARENCY) {
+          next = Math.min(100, next);
+        }
         configWrite(key, next);
       });
     }
@@ -554,7 +567,8 @@ function initChatOverlay() {
   const sizingKeys = [
     CHAT_OVERLAY_WIDTH,
     CHAT_OVERLAY_HEIGHT,
-    CHAT_OVERLAY_FONT_SIZE
+    CHAT_OVERLAY_FONT_SIZE,
+    CHAT_OVERLAY_TRANSPARENCY
   ];
   sizingKeys.forEach((k) => {
     configAddChangeListener(k, () => {

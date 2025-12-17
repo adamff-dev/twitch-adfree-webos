@@ -8,6 +8,7 @@ export const CHAT_POSITION = 'chatPosition';
 export const CHAT_OVERLAY_WIDTH = 'chatOverlayWidth';
 export const CHAT_OVERLAY_HEIGHT = 'chatOverlayHeight';
 export const CHAT_OVERLAY_FONT_SIZE = 'chatOverlayFontSize';
+export const CHAT_OVERLAY_TRANSPARENCY = 'chatOverlayTransparency';
 export const ENABLE_LOW_LATENCY = 'enableLowLatency';
 export const ACTION_RESET_CONFIG = 'actionResetConfig';
 
@@ -48,6 +49,10 @@ export const configOptions = {
   [CHAT_OVERLAY_FONT_SIZE]: {
     default: 25,
     desc: 'Chat text size in pixels'
+  },
+  [CHAT_OVERLAY_TRANSPARENCY]: {
+    default: 50,
+    desc: 'Chat overlay background transparency (0-100%)'
   },
   [ACTION_RESET_CONFIG]: {
     default: null,
