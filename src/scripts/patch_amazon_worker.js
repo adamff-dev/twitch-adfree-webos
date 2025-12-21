@@ -149,7 +149,10 @@ self.fetch = async function (input, opt) {
 
         if (channelMatch && channelMatch[1]) {
           const channel = channelMatch[1];
-          const newUrl = `https://as.luminous.dev/live/${channel}?allow_source=true&allow_audio_only=true&fast_bread=true`;
+          const proxyUrlTemplate =
+            config.customProxyUrl ||
+            'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true';
+          const newUrl = proxyUrlTemplate.replace('$channel', channel);
 
           // Reconstruct Request if needed
           if (input instanceof Request) {

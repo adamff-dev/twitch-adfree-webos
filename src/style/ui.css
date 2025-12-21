@@ -55,6 +55,68 @@
   cursor: pointer;
 }
 
+.taf-config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 6px 0;
+}
+
+.taf-config-label {
+  color: #fff;
+  font-size: 2rem;
+  cursor: default;
+  display: block;
+}
+
+.taf-fullwidth-input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(145, 71, 255, 0.3);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1.5rem;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+
+.taf-fullwidth-input:focus {
+  outline: none;
+  border-color: #9147ff;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(145, 71, 255, 0.3);
+}
+
+.taf-fullwidth-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.taf-text-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(145, 71, 255, 0.3);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1.5rem;
+  font-family: monospace;
+  min-width: 200px;
+}
+
+.taf-text-input:focus {
+  outline: none;
+  border-color: #9147ff;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(145, 71, 255, 0.3);
+}
+
+.taf-text-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* Estilo para el foco en los checkboxes */
 .taf-ui-container input[type='checkbox']:focus {
   outline: 2px solid #b583ff;

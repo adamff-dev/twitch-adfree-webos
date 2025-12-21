@@ -11,6 +11,7 @@ export const CHAT_OVERLAY_FONT_SIZE = 'chatOverlayFontSize';
 export const CHAT_OVERLAY_TRANSPARENCY = 'chatOverlayTransparency';
 export const ENABLE_LOW_LATENCY = 'enableLowLatency';
 export const USE_CUSTOM_PROXY = 'useCustomProxy';
+export const CUSTOM_PROXY_URL = 'customProxyUrl';
 export const ACTION_RESET_CONFIG = 'actionResetConfig';
 
 export const configOptions = {
@@ -19,8 +20,13 @@ export const configOptions = {
     desc: 'Enable low latency mode (experimental)'
   },
   [USE_CUSTOM_PROXY]: {
-    default: false,
-    desc: 'Use luminous.dev for HLS playlist streaming'
+    default: true,
+    desc: 'Use custom proxy URL for HLS streaming (experimental)'
+  },
+  [CUSTOM_PROXY_URL]: {
+    default:
+      'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true',
+    desc: 'Custom proxy URL for HLS streaming'
   },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {
@@ -41,6 +47,7 @@ export const configOptions = {
   },
   [CHAT_POSITION]: {
     default: 'Bottom Right',
+    options: ['Top Left', 'Top Right', 'Bottom Left', 'Bottom Right'],
     desc: 'Chat position'
   },
   [CHAT_OVERLAY_WIDTH]: {

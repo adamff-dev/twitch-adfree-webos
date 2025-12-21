@@ -18,6 +18,7 @@ import {
   CHAT_OVERLAY_HEIGHT,
   CHAT_OVERLAY_FONT_SIZE,
   CHAT_OVERLAY_TRANSPARENCY,
+  CUSTOM_PROXY_URL,
   ACTION_RESET_CONFIG
 } from '../constants/config.constants.js';
 
@@ -86,18 +87,12 @@ function applyChatPosition() {
   // Reset classes
   document.body.classList.remove('chat-left', 'chat-top', 'chat-bottom');
 
+  const positions = configOptions[CHAT_POSITION].options;
   const [vertical, horizontal] = (() => {
-    switch (pos) {
-      case 'Top Left':
-        return ['top', 'left'];
-      case 'Top Right':
-        return ['top', 'right'];
-      case 'Bottom Left':
-        return ['bottom', 'left'];
-      case 'Bottom Right':
-      default:
-        return ['bottom', 'right'];
-    }
+    const posIndex = positions.indexOf(pos);
+    const verticals = ['top', 'top', 'bottom', 'bottom'];
+    const horizontals = ['left', 'right', 'left', 'right'];
+    return [verticals[posIndex] || 'bottom', horizontals[posIndex] || 'right'];
   })();
 
   if (horizontal === 'left') {
@@ -149,15 +144,28 @@ function getKeyColor(keyCode) {
 function createConfigCheckbox(key) {
   const elmInput = document.createElement('input');
   const isBoolean = typeof configOptions[key].default === 'boolean';
-  elmInput.type = isBoolean ? 'checkbox' : 'hidden';
+  const isString = typeof configOptions[key].default === 'string';
+  const options = configOptions[key].options;
+
   if (isBoolean) {
+    elmInput.type = 'checkbox';
     elmInput.checked = configRead(key);
+  } else if (isString && !options) {
+    elmInput.type = 'text';
+    elmInput.classList.add('taf-text-input');
+    // Ensure value is set even if configRead is not ready yet
+    const value = configRead(key);
+    elmInput.value = value || configOptions[key].default || '';
+  } else {
+    elmInput.type = 'hidden';
   }
 
   /** @type {(evt: Event) => void} */
   const changeHandler = (evt) => {
     if (isBoolean) {
       configWrite(key, evt.target.checked);
+    } else if (isString) {
+      configWrite(key, evt.target.value);
     }
   };
 
@@ -167,10 +175,30 @@ function createConfigCheckbox(key) {
   configAddChangeListener(key, (evt) => {
     if (isBoolean) {
       elmInput.checked = evt.detail.newValue;
+    } else if (isString) {
+      elmInput.value = String(evt.detail.newValue);
     } else if (valueSpan) {
       valueSpan.textContent = String(evt.detail.newValue);
     }
   });
+
+  // Special handling for CUSTOM_PROXY_URL
+  if (key === CUSTOM_PROXY_URL) {
+    const container = document.createElement('div');
+    container.classList.add('taf-config-item');
+
+    const label = document.createElement('label');
+    label.classList.add('taf-config-label');
+    label.textContent = configGetDesc(key);
+
+    elmInput.classList.remove('taf-text-input');
+    elmInput.classList.add('taf-fullwidth-input');
+    elmInput.tabIndex = 0;
+
+    container.appendChild(label);
+    container.appendChild(elmInput);
+    return container;
+  }
 
   const elmLabel = document.createElement('label');
   elmLabel.appendChild(elmInput);
@@ -199,7 +227,7 @@ function createConfigCheckbox(key) {
     btnContainer.appendChild(document.createTextNode(' '));
     btnContainer.appendChild(actionBtn);
     elmLabel.appendChild(btnContainer);
-  } else if (!isBoolean) {
+  } else if ((!isBoolean && !isString) || options) {
     // Arrow buttons and value display for numeric settings
     const container = document.createElement('span');
     container.classList.add('taf-number-arrows');
@@ -230,17 +258,11 @@ function createConfigCheckbox(key) {
     };
 
     const cyclePosition = (dir) => {
-      const positions = [
-        'Top Left',
-        'Top Right',
-        'Bottom Left',
-        'Bottom Right'
-      ];
       const current = String(configRead(CHAT_POSITION));
-      const idx = positions.indexOf(current);
+      const idx = options.indexOf(current);
       const nextIdx =
-        (idx + (dir === 'next' ? 1 : -1) + positions.length) % positions.length;
-      const next = positions[nextIdx];
+        (idx + (dir === 'next' ? 1 : -1) + options.length) % options.length;
+      const next = options[nextIdx];
       configWrite(CHAT_POSITION, next);
       valueSpan.textContent = next;
     };
@@ -301,7 +323,7 @@ function createOptionsPanel() {
 
       const focusables = Array.from(
         elmContainer.querySelectorAll(
-          '.taf-ui-container input[type="checkbox"], .taf-ui-container button'
+          '.taf-ui-container input[type="checkbox"], .taf-ui-container input[type="text"], .taf-ui-container button'
         )
       );
 
