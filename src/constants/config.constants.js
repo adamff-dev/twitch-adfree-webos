@@ -10,12 +10,17 @@ export const CHAT_OVERLAY_HEIGHT = 'chatOverlayHeight';
 export const CHAT_OVERLAY_FONT_SIZE = 'chatOverlayFontSize';
 export const CHAT_OVERLAY_TRANSPARENCY = 'chatOverlayTransparency';
 export const ENABLE_LOW_LATENCY = 'enableLowLatency';
+export const USE_CUSTOM_PROXY = 'useCustomProxy';
 export const ACTION_RESET_CONFIG = 'actionResetConfig';
 
 export const configOptions = {
   [ENABLE_LOW_LATENCY]: {
     default: false,
     desc: 'Enable low latency mode (experimental)'
+  },
+  [USE_CUSTOM_PROXY]: {
+    default: false,
+    desc: 'Use luminous.dev for HLS playlist streaming'
   },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {

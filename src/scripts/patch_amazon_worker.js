@@ -130,6 +130,41 @@ self.fetch = async function (input, opt) {
     return;
   }
 
+  // Redirect HLS playlist requests to luminous.dev
+  if (
+    url.includes('.m3u8') &&
+    url.includes('usher.ttvnw.net/api/channel/hls/')
+  ) {
+    // Check if luminous playback is enabled in config
+    try {
+      const configStr = self.localStorage?.getItem('taf-configuration');
+      const config = configStr ? JSON.parse(configStr) : {};
+
+      if (config.useCustomProxy) {
+        const urlObj = new URL(url);
+        // Extract channel name from path: /api/channel/hls/{channel}.m3u8
+        const channelMatch = urlObj.pathname.match(
+          /\/api\/channel\/hls\/([^.]+)\.m3u8/
+        );
+
+        if (channelMatch && channelMatch[1]) {
+          const channel = channelMatch[1];
+          const newUrl = `https://as.luminous.dev/live/${channel}?allow_source=true&allow_audio_only=true&fast_bread=true`;
+
+          // Reconstruct Request if needed
+          if (input instanceof Request) {
+            input = new Request(newUrl, input);
+          } else {
+            input = newUrl;
+          }
+        }
+      }
+    } catch (e) {
+      // Silently fail if config reading fails
+      console.warn('Failed to read config for luminous playback', e);
+    }
+  }
+
   let response = await oldFetch(input, opt);
 
   if (url.startsWith('https://usher.ttvnw.net/vod/')) {
