@@ -137,10 +137,9 @@ self.fetch = async function (input, opt) {
   ) {
     // Check if luminous playback is enabled in config
     try {
-      const configStr = self.localStorage?.getItem('taf-configuration');
-      const config = configStr ? JSON.parse(configStr) : {};
-
-      if (config.useCustomProxy) {
+      // Note: useProxy defined in twitch_no_sub.js as this worker cannot access config directly
+      // eslint-disable-next-line no-undef
+      if (useProxy) {
         const urlObj = new URL(url);
         // Extract channel name from path: /api/channel/hls/{channel}.m3u8
         const channelMatch = urlObj.pathname.match(
@@ -150,7 +149,9 @@ self.fetch = async function (input, opt) {
         if (channelMatch && channelMatch[1]) {
           const channel = channelMatch[1];
           const proxyUrlTemplate =
-            config.customProxyUrl ||
+            // Note: proxyUrl defined in twitch_no_sub.js as this worker cannot access config directly
+            // eslint-disable-next-line no-undef
+            proxyUrl ||
             'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true';
           const newUrl = proxyUrlTemplate.replace('$channel', channel);
 

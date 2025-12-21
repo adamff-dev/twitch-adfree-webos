@@ -1,3 +1,8 @@
+import { configRead } from '../config';
+import {
+  CUSTOM_PROXY_URL,
+  USE_CUSTOM_PROXY
+} from '../constants/config.constants';
 import { APP_VERSION } from '../constants/global.constants';
 
 const patchAmazonWorkerUrl =
@@ -22,12 +27,19 @@ const patchAmazonWorkerUrl =
         `${twitchBlobUrl.replace(/'/g, '%27')}`
       );
 
+      const useProxy = configRead(USE_CUSTOM_PROXY);
+      const proxyUrl = configRead(CUSTOM_PROXY_URL);
+
       const blobUrl = URL.createObjectURL(
         new Blob([
           `
+            useProxy = ${useProxy};
+            proxyUrl = '${proxyUrl}';
+
             importScripts(
               '${patchAmazonWorkerUrl}',
             );
+
             ${workerString}
         `
         ])
