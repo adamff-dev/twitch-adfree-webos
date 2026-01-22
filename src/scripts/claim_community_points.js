@@ -122,10 +122,6 @@ async function claimPointsRoutine() {
 
     const claimResponse = await postClaimCommunityPoints(channelID, claimId);
 
-    if (!configRead(SHOW_CLAIM_POINTS_MESSAGE)) {
-      return;
-    }
-
     const pointsEarned =
       claimResponse?.[0]?.data?.claimCommunityPoints?.claim?.pointsEarnedTotal;
 
