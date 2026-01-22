@@ -148,6 +148,26 @@ npm run deploy
 npm run launch
 ```
 
+### Launching directly to a specific channel
+
+You can launch the app and navigate directly to a specific Twitch channel using the `channel` parameter.
+
+#### Using luna-send (SSH/Telnet)
+
+Connect to your TV via SSH or Telnet and run:
+
+```sh
+luna-send -n 1 -f luna://com.webos.applicationManager/launch '{"id":"twitch.adamffdev.v1","params":{"channel":"CHANNEL_NAME"}}'
+```
+
+#### Using URL parameter (Development)
+
+If you're testing locally or via CLI:
+
+```sh
+npm run launch -- -p '{"channel":"CHANNEL_NAME"}'
+```
+
 ## Build, deploy and launch
 
 The following one-liner is convenient for debugging because it chains together all the essential steps — building, packaging, deploying, and launching — into a single command:
