@@ -29,7 +29,17 @@ const REJECT_COOKIES_SELECTOR =
 const MODAL_SVG_SELECTOR = '[role="dialog"][aria-modal="true"] svg';
 const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
-const bannerAdSelector = '.r-2dbvay';
+/** Any match implies an ad break; combined with end debounce for consecutive ads. */
+const AD_SIGNAL_SELECTORS = [
+  '.r-2dbvay',
+  '[data-a-target="player-ad-countdown"]',
+  '[data-a-target="video-ad-label"]',
+  '[data-a-target="spectating-ad-banner"]'
+];
+/** No ad UI for this long after the last signal before restoring playback. */
+const AD_END_HOLD_MS = 3000;
+/** Re-apply mute / zero volume while suppressed (player often resets them mid-ad). */
+const AD_REAPPLY_MS = 350;
 const latestVideo = 'nav[role="navigation"] + main video';
 
 const HOME_SELECTOR = 'a[href="/"]';
@@ -500,31 +510,175 @@ function initRemoveAnimations() {
   });
 }
 
+function adBreakSignalsPresent() {
+  for (const sel of AD_SIGNAL_SELECTORS) {
+    try {
+      if (document.querySelector(sel)) return true;
+    } catch {
+      /* invalid selector in a future deploy */
+    }
+  }
+  const videoPlayer = document.querySelector('[data-a-target="video-player"]');
+  if (
+    videoPlayer &&
+    videoPlayer.querySelector('[data-a-target="banner-ad-container"]')
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Main player videos only (skip tiny previews / stray tags).
+ */
+function getPlayerVideos() {
+  const root =
+    document.querySelector('[data-a-target="video-player"]') ||
+    document.querySelector('main');
+  const list = root
+    ? Array.from(root.querySelectorAll('video'))
+    : Array.from(document.querySelectorAll('video'));
+  return list.filter((v) => {
+    const r = v.getBoundingClientRect();
+    return r.width > 80 && r.height > 45;
+  });
+}
+
 function handleAdsAndConsentModals() {
-  const enableAdBlock = configRead(ENABLE_AD_BLOCK);
+  const preAdByVideo = new WeakMap();
+  const suppressedVideos = new Set();
+  let suppressPlayback = false;
+  let endHoldTimer = null;
+  let reapplyTimer = null;
+  let evalScheduled = false;
+
+  function clearEndHoldTimer() {
+    if (endHoldTimer) {
+      clearTimeout(endHoldTimer);
+      endHoldTimer = null;
+    }
+  }
+
+  function clearReapplyTimer() {
+    if (reapplyTimer) {
+      clearInterval(reapplyTimer);
+      reapplyTimer = null;
+    }
+  }
+
+  function rememberPreAdOnce(video) {
+    if (!preAdByVideo.has(video)) {
+      preAdByVideo.set(video, {
+        muted: video.muted,
+        volume: video.volume,
+        display: video.style.display || ''
+      });
+    }
+  }
+
+  function applyAdSuppressionToAll() {
+    const videos = getPlayerVideos();
+    for (const v of videos) {
+      rememberPreAdOnce(v);
+      v.muted = true;
+      v.volume = 0;
+      v.style.display = 'none';
+      suppressedVideos.add(v);
+    }
+  }
+
+  function restoreAllSuppressed() {
+    clearReapplyTimer();
+    for (const v of suppressedVideos) {
+      const s = preAdByVideo.get(v);
+      if (s) {
+        v.muted = s.muted;
+        v.volume = s.volume;
+        v.style.display = s.display;
+      }
+      preAdByVideo.delete(v);
+    }
+    suppressedVideos.clear();
+  }
+
+  function startReapplyLoop() {
+    if (reapplyTimer) return;
+    reapplyTimer = setInterval(() => {
+      if (suppressPlayback) applyAdSuppressionToAll();
+    }, AD_REAPPLY_MS);
+  }
+
+  function evaluateAdSuppression() {
+    const enableAdBlock = configRead(ENABLE_AD_BLOCK);
+    if (!enableAdBlock) {
+      clearEndHoldTimer();
+      if (suppressPlayback) {
+        suppressPlayback = false;
+        restoreAllSuppressed();
+      }
+      return;
+    }
+
+    const signals = adBreakSignalsPresent();
+
+    if (signals) {
+      clearEndHoldTimer();
+      const wasOff = !suppressPlayback;
+      suppressPlayback = true;
+      applyAdSuppressionToAll();
+      startReapplyLoop();
+      if (wasOff) {
+        showNotification('Ads muted and hidden');
+      }
+      return;
+    }
+
+    if (!suppressPlayback) return;
+
+    if (!endHoldTimer) {
+      endHoldTimer = setTimeout(() => {
+        endHoldTimer = null;
+        suppressPlayback = false;
+        restoreAllSuppressed();
+      }, AD_END_HOLD_MS);
+    }
+    applyAdSuppressionToAll();
+    startReapplyLoop();
+  }
+
+  function scheduleEval() {
+    if (evalScheduled) return;
+    evalScheduled = true;
+    requestAnimationFrame(() => {
+      evalScheduled = false;
+      evaluateAdSuppression();
+    });
+  }
+
+  document.addEventListener(
+    'volumechange',
+    (e) => {
+      if (!suppressPlayback) return;
+      if (e.target instanceof HTMLVideoElement) applyAdSuppressionToAll();
+    },
+    true
+  );
+
+  document.addEventListener(
+    'playing',
+    (e) => {
+      if (!suppressPlayback) return;
+      if (e.target instanceof HTMLVideoElement) applyAdSuppressionToAll();
+    },
+    true
+  );
+
+  configAddChangeListener(ENABLE_AD_BLOCK, () => {
+    scheduleEval();
+  });
 
   const observer = new MutationObserver(() => {
-    const adElement = document.querySelector(bannerAdSelector);
-    const videoElement = document.querySelector('video');
-
-    if (videoElement && enableAdBlock) {
-      const isAdVisible = !!adElement;
-      const shouldMute =
-        isAdVisible &&
-        (!videoElement.muted || videoElement.style.display !== 'none');
-      const shouldUnmute =
-        !isAdVisible &&
-        (videoElement.muted || videoElement.style.display === 'none');
-
-      if (shouldMute) {
-        videoElement.muted = true;
-        videoElement.style.display = 'none';
-        showNotification('Ads muted and hidden');
-      } else if (shouldUnmute) {
-        videoElement.muted = false;
-        videoElement.style.display = 'block';
-      }
-    }
+    scheduleEval();
 
     // Auto-reject cookies if the modal is present
     const rejectCookiesButton = document.querySelector(REJECT_COOKIES_SELECTOR);
@@ -558,6 +712,8 @@ function handleAdsAndConsentModals() {
     childList: true,
     subtree: true
   });
+
+  scheduleEval();
 }
 
 function initKeyListeners() {
