@@ -159,11 +159,11 @@
 }
 
 .taf-notification-container {
-  position: absolute;
+  position: fixed;
   right: 10px;
   bottom: 10px;
   font-size: 16pt;
-  z-index: 1200;
+  z-index: 2147483645;
 }
 
 .taf-notification-container .message {
