@@ -1,4 +1,28 @@
-import { CONFIG_KEY, configOptions } from './constants/config.constants';
+import {
+  CONFIG_KEY,
+  CUSTOM_PROXY_URL,
+  configOptions
+} from './constants/config.constants';
+
+const LEGACY_LUMINOUS_CUSTOM_PROXY =
+  'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true';
+const REPLACEMENT_USHER_CUSTOM_PROXY =
+  'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8';
+
+function migrateLegacyCustomProxyUrl(parsed) {
+  if (!parsed || typeof parsed !== 'object') {
+    return false;
+  }
+  const raw = parsed[CUSTOM_PROXY_URL];
+  if (typeof raw !== 'string') {
+    return false;
+  }
+  if (raw.trim() === LEGACY_LUMINOUS_CUSTOM_PROXY) {
+    parsed[CUSTOM_PROXY_URL] = REPLACEMENT_USHER_CUSTOM_PROXY;
+    return true;
+  }
+  return false;
+}
 
 const defaultConfig = (() => {
   let ret = {};
@@ -25,7 +49,11 @@ function loadStoredConfig() {
   }
 
   try {
-    return JSON.parse(storage);
+    const parsed = JSON.parse(storage);
+    if (migrateLegacyCustomProxyUrl(parsed)) {
+      window.localStorage.setItem(CONFIG_KEY, JSON.stringify(parsed));
+    }
+    return parsed;
   } catch (err) {
     console.warn('Error parsing stored config:', err);
     return null;
