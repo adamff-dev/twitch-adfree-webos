@@ -464,10 +464,17 @@ const eventHandler = (evt) => {
 };
 
 export function showNotification(text, time = 7000, type = 'success') {
-  if (!document.querySelector('.taf-notification-container')) {
+  const attachRoot = document.body || document.documentElement;
+  if (!attachRoot) {
+    return;
+  }
+
+  let container = document.querySelector('.taf-notification-container');
+  if (!container) {
     const c = document.createElement('div');
     c.classList.add('taf-notification-container');
-    document.body.appendChild(c);
+    attachRoot.appendChild(c);
+    container = c;
   }
 
   const elm = document.createElement('div');
@@ -477,7 +484,7 @@ export function showNotification(text, time = 7000, type = 'success') {
   elmInner.classList.add('message-hidden');
   elmInner.classList.add(`message-${type}`);
   elm.appendChild(elmInner);
-  document.querySelector('.taf-notification-container').appendChild(elm);
+  container.appendChild(elm);
 
   setTimeout(() => {
     elmInner.classList.remove('message-hidden');
@@ -766,4 +773,37 @@ function init() {
   showNotification('Press [GREEN] button to open configuration', 5000, 'info');
 }
 
-init();
+/**
+ * Twitch / webOS can inject bundled scripts before <body> exists. Prior code
+ * called MutationObserver.observe(document.body) synchronously during init(),
+ * which throws and skips all UI setup (including notifications).
+ */
+function scheduleUIInit() {
+  let ran = false;
+  const tryRun = () => {
+    if (ran || !document.body) return;
+    ran = true;
+    init();
+  };
+
+  tryRun();
+
+  document.addEventListener('DOMContentLoaded', tryRun, { once: true });
+
+  let frames = 0;
+  function tick() {
+    tryRun();
+    if (ran || ++frames >= 300) {
+      if (!ran) {
+        console.warn(
+          '[twitch-adfree] UI init deferred: document.body did not appear in time'
+        );
+      }
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+scheduleUIInit();
