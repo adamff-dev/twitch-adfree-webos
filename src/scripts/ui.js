@@ -536,15 +536,18 @@ function adBreakSignalsPresent() {
 }
 
 /**
- * Main player videos only (skip tiny previews / stray tags).
+ * Videos under the player (or main). With includeSmall, every descendant <video>
+ * is returned — needed during ad suppression because Twitch swaps elements and
+ * new tags often report 0×0 until layout settles (they were skipped by the size filter).
  */
-function getPlayerVideos() {
+function getPlayerVideos(includeSmall = false) {
   const root =
     document.querySelector('[data-a-target="video-player"]') ||
     document.querySelector('main');
   const list = root
     ? Array.from(root.querySelectorAll('video'))
     : Array.from(document.querySelectorAll('video'));
+  if (includeSmall) return list;
   return list.filter((v) => {
     const r = v.getBoundingClientRect();
     return r.width > 80 && r.height > 45;
@@ -584,7 +587,7 @@ function handleAdsAndConsentModals() {
   }
 
   function applyAdSuppressionToAll() {
-    const videos = getPlayerVideos();
+    const videos = getPlayerVideos(true);
     for (const v of videos) {
       rememberPreAdOnce(v);
       v.muted = true;
@@ -662,23 +665,21 @@ function handleAdsAndConsentModals() {
     });
   }
 
-  document.addEventListener(
-    'volumechange',
-    (e) => {
-      if (!suppressPlayback) return;
-      if (e.target instanceof HTMLVideoElement) applyAdSuppressionToAll();
-    },
-    true
-  );
+  /** Player swaps <video> nodes mid-ad; these fire when the new element loads or unmutes. */
+  function onVideoAdLifecycle(e) {
+    if (!suppressPlayback) return;
+    if (e.target instanceof HTMLVideoElement) applyAdSuppressionToAll();
+  }
 
-  document.addEventListener(
+  for (const evtName of [
     'playing',
-    (e) => {
-      if (!suppressPlayback) return;
-      if (e.target instanceof HTMLVideoElement) applyAdSuppressionToAll();
-    },
-    true
-  );
+    'volumechange',
+    'loadedmetadata',
+    'loadeddata',
+    'emptied'
+  ]) {
+    document.addEventListener(evtName, onVideoAdLifecycle, true);
+  }
 
   configAddChangeListener(ENABLE_AD_BLOCK, () => {
     scheduleEval();
