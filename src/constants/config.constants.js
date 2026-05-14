@@ -39,7 +39,7 @@ export const configOptions = {
   },
   [LOAD_EMOTES]: {
     default: true,
-    desc: 'Enable loading of 7TV and BTTV emotes in chat'
+    desc: 'Enable loading of 7TV, BTTV, and FFZ emotes in chat'
   },
   [ENABLE_CHAT_OVERLAY]: {
     default: true,
