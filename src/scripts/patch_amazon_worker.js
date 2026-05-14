@@ -130,20 +130,17 @@ self.fetch = async function (input, opt) {
     return;
   }
 
-  // Redirect HLS playlist requests to luminous.dev
-  if (
-    url.includes('.m3u8') &&
-    url.includes('usher.ttvnw.net/api/channel/hls/')
-  ) {
-    // Check if luminous playback is enabled in config
+  // Redirect live HLS playlist requests to the configured URL template ($channel)
+  if (url.includes('.m3u8') && url.includes('usher.ttvnw.net')) {
+    // Check if custom HLS URL is enabled in config
     try {
       // Note: useProxy defined in twitch_no_sub.js as this worker cannot access config directly
       // eslint-disable-next-line no-undef
       if (useProxy) {
         const urlObj = new URL(url);
-        // Extract channel name from path: /api/channel/hls/{channel}.m3u8
+        // /api/channel/hls/{channel}.m3u8 or /api/v2/channel/hls/{channel}.m3u8
         const channelMatch = urlObj.pathname.match(
-          /\/api\/channel\/hls\/([^.]+)\.m3u8/
+          /\/api\/(?:v2\/)?channel\/hls\/([^.]+)\.m3u8/
         );
 
         if (channelMatch && channelMatch[1]) {
@@ -152,7 +149,7 @@ self.fetch = async function (input, opt) {
             // Note: proxyUrl defined in twitch_no_sub.js as this worker cannot access config directly
             // eslint-disable-next-line no-undef
             proxyUrl ||
-            'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true';
+            'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8';
           const newUrl = proxyUrlTemplate.replace('$channel', channel);
 
           // Reconstruct Request if needed
@@ -165,7 +162,7 @@ self.fetch = async function (input, opt) {
       }
     } catch (e) {
       // Silently fail if config reading fails
-      console.warn('Failed to read config for luminous playback', e);
+      console.warn('Failed to read config for custom HLS URL', e);
     }
   }
 

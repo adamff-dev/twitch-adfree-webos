@@ -25,7 +25,7 @@ export const configOptions = {
   },
   [CUSTOM_PROXY_URL]: {
     default:
-      'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true',
+      'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8',
     desc: 'Custom proxy URL for HLS streaming'
   },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
