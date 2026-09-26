@@ -4,10 +4,14 @@ import {
   USE_CUSTOM_PROXY
 } from '../constants/config.constants';
 import { APP_VERSION } from '../constants/global.constants';
+import { installUsherXhrPatch } from './patch_usher_xhr';
 
 const patchAmazonWorkerUrl =
   'https://adamff-dev.github.io/twitch-adfree-webos/src/scripts/patch_amazon_worker.js?v=' +
   APP_VERSION; // For cache busting
+
+// Fix for "Pulsar" hls.js player used on lg.tv.twitch.tv
+installUsherXhrPatch();
 
 (function () {
   // From vaft script (https://github.com/pixeltris/TwitchAdSolutions/blob/master/vaft/vaft.user.js#L299)
