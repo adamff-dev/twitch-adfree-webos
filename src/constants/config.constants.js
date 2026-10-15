@@ -41,15 +41,6 @@ export const configOptions = {
     default: false,
     desc: 'Enable low latency mode (experimental)'
   },
-  [USE_CUSTOM_PROXY]: {
-    default: true,
-    desc: 'Use proxy servers for HLS streaming (experimental)'
-  },
-  [PROXY_SERVER_1]: { default: PROXY_SERVERS[0], desc: 'Proxy server 1' },
-  [PROXY_SERVER_2]: { default: PROXY_SERVERS[1], desc: 'Proxy server 2' },
-  [PROXY_SERVER_3]: { default: PROXY_SERVERS[2], desc: 'Proxy server 3' },
-  [PROXY_SERVER_4]: { default: PROXY_SERVERS[3], desc: 'Proxy server 4' },
-  [PROXY_SERVER_5]: { default: PROXY_SERVERS[4] ?? '', desc: 'Proxy server 5' },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {
     default: true,
@@ -88,6 +79,15 @@ export const configOptions = {
     default: 50,
     desc: 'Chat overlay background transparency (0-100%)'
   },
+  [USE_CUSTOM_PROXY]: {
+    default: true,
+    desc: 'Use proxy servers for HLS streaming (experimental)'
+  },
+  [PROXY_SERVER_1]: { default: PROXY_SERVERS[0], desc: 'Proxy server 1' },
+  [PROXY_SERVER_2]: { default: PROXY_SERVERS[1], desc: 'Proxy server 2' },
+  [PROXY_SERVER_3]: { default: PROXY_SERVERS[2], desc: 'Proxy server 3' },
+  [PROXY_SERVER_4]: { default: PROXY_SERVERS[3], desc: 'Proxy server 4' },
+  [PROXY_SERVER_5]: { default: PROXY_SERVERS[4] ?? '', desc: 'Proxy server 5' },
   [ACTION_RESET_CONFIG]: {
     default: null,
     desc: 'Reset configuration to defaults'

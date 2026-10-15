@@ -18,6 +18,7 @@ import {
   CHAT_OVERLAY_HEIGHT,
   CHAT_OVERLAY_FONT_SIZE,
   CHAT_OVERLAY_TRANSPARENCY,
+  USE_CUSTOM_PROXY,
   PROXY_SERVER_KEYS,
   ACTION_RESET_CONFIG
 } from '../constants/config.constants.js';
@@ -214,7 +215,7 @@ function createConfigCheckbox(key) {
   // Special handling for the proxy server fields (full-width text inputs)
   if (PROXY_SERVER_KEYS.includes(key)) {
     const container = document.createElement('div');
-    container.classList.add('taf-config-item');
+    container.classList.add('taf-config-item', 'taf-proxy-server-item');
 
     const label = document.createElement('label');
     label.classList.add('taf-config-label');
@@ -354,7 +355,7 @@ function createOptionsPanel() {
         elmContainer.querySelectorAll(
           '.taf-ui-container input[type="checkbox"], .taf-ui-container input[type="text"], .taf-ui-container button'
         )
-      );
+      ).filter((el) => el.offsetParent !== null);
 
       if (evt.keyCode in ARROW_KEY_CODE) {
         const direction = ARROW_KEY_CODE[evt.keyCode];
@@ -410,6 +411,19 @@ function createOptionsPanel() {
     optionsList.appendChild(checkboxContainer);
     focusableElements.push(checkboxInput);
   });
+
+  // Proxy server URLs are only relevant while "Use proxy servers" is enabled
+  const proxyServerItems = optionsList.querySelectorAll(
+    '.taf-proxy-server-item'
+  );
+  const updateProxyServerVisibility = () => {
+    const proxyEnabled = Boolean(configRead(USE_CUSTOM_PROXY));
+    proxyServerItems.forEach((item) => {
+      item.classList.toggle('taf-hidden', !proxyEnabled);
+    });
+  };
+  configAddChangeListener(USE_CUSTOM_PROXY, updateProxyServerVisibility);
+  updateProxyServerVisibility();
 
   elmContainer.appendChild(optionsList);
 
