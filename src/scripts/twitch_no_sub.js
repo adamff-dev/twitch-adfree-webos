@@ -33,8 +33,8 @@ const patchAmazonWorkerUrl =
       const blobUrl = URL.createObjectURL(
         new Blob([
           `
-            useProxy = ${useProxy};
-            proxyUrl = '${proxyUrl}';
+            useProxy = ${JSON.stringify(useProxy)};
+            proxyUrl = ${JSON.stringify(proxyUrl)};
 
             importScripts(
               '${patchAmazonWorkerUrl}',

@@ -100,6 +100,66 @@ async function isValidQuality(url) {
   return null;
 }
 
+/**
+ * Builds the final HLS URL from the user-configured proxy template.
+ *
+ * Supported placeholders:
+ *   $channel / {channel} - the channel login.
+ *   $url / {url}         - the full original URL, query string included.
+ *
+ * Twitch's access token/signature travel in the request query string. A plain
+ * "pass-through" proxy (e.g. `https://myproxy.tld/https://usher.ttvnw.net/...`)
+ * forwards that URL to usher, so those parameters must survive the rewrite.
+ * If the template does not already contain them (no `$url` placeholder and no
+ * `token` param), the missing original query parameters are merged in.
+ * Without this the proxy receives an unauthenticated request and usher replies
+ * with HTTP 403, which made the custom proxy appear to "do nothing".
+ *
+ * @param {string} template Configured proxy URL template.
+ * @param {string} originalUrl Original Twitch playlist request URL.
+ * @param {string} channel Channel login extracted from the original URL.
+ * @returns {string} URL to request instead of the original one.
+ */
+function applyProxyTemplate(template, originalUrl, channel) {
+  const usesFullUrl = template.includes('$url') || template.includes('{url}');
+
+  let target = template.split('$url').join(originalUrl);
+  target = target.split('{url}').join(originalUrl);
+  target = target.split('$channel').join(channel);
+  target = target.split('{channel}').join(channel);
+
+  const originalQuery = new URL(originalUrl).search.replace(/^\?/, '');
+  if (usesFullUrl || originalQuery === '') {
+    return target;
+  }
+
+  const hashAt = target.indexOf('#');
+  const hash = hashAt === -1 ? '' : target.slice(hashAt);
+  const withoutHash = hashAt === -1 ? target : target.slice(0, hashAt);
+  const queryAt = withoutHash.indexOf('?');
+  const base = queryAt === -1 ? withoutHash : withoutHash.slice(0, queryAt);
+  const templateQuery = queryAt === -1 ? '' : withoutHash.slice(queryAt + 1);
+
+  const presentKeys = new Set(
+    templateQuery
+      .split('&')
+      .filter(Boolean)
+      .map((param) => param.split('=')[0])
+  );
+
+  const carried = originalQuery
+    .split('&')
+    .filter(Boolean)
+    .filter((param) => !presentKeys.has(param.split('=')[0]));
+
+  const mergedQuery = [
+    ...templateQuery.split('&').filter(Boolean),
+    ...carried
+  ].join('&');
+
+  return (mergedQuery === '' ? base : `${base}?${mergedQuery}`) + hash;
+}
+
 const oldFetch = self.fetch;
 
 self.fetch = async function (input, opt) {
@@ -130,7 +190,7 @@ self.fetch = async function (input, opt) {
     return;
   }
 
-  // Redirect live HLS playlist requests to the configured URL template ($channel)
+  // Redirect live HLS playlist requests to the configured proxy template
   if (url.includes('.m3u8') && url.includes('usher.ttvnw.net')) {
     // Check if custom HLS URL is enabled in config
     try {
@@ -150,7 +210,7 @@ self.fetch = async function (input, opt) {
             // eslint-disable-next-line no-undef
             proxyUrl ||
             'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8';
-          const newUrl = proxyUrlTemplate.replace('$channel', channel);
+          const newUrl = applyProxyTemplate(proxyUrlTemplate, url, channel);
 
           // Reconstruct Request if needed
           if (input instanceof Request) {

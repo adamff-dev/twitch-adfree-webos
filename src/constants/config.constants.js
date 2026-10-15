@@ -24,9 +24,8 @@ export const configOptions = {
     desc: 'Use custom proxy URL for HLS streaming (experimental)'
   },
   [CUSTOM_PROXY_URL]: {
-    default:
-      'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8',
-    desc: 'Custom proxy URL for HLS streaming'
+    default: 'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8',
+    desc: 'Custom proxy URL for HLS streaming ($channel = channel, $url = full URL)'
   },
   [ENABLE_AD_BLOCK]: { default: true, desc: 'Mute and hide ads automatically' },
   [DISABLE_ANIMATIONS]: {
