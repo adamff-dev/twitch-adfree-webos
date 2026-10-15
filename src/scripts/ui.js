@@ -29,12 +29,31 @@ const REJECT_COOKIES_SELECTOR =
 const MODAL_SVG_SELECTOR = '[role="dialog"][aria-modal="true"] svg';
 const contentClassificationSelector =
   'a[href*="tt_medium=content_classification"]';
-/** Any match implies an ad break; combined with end debounce for consecutive ads. */
+/**
+ * Any match implies an ad break; combined with end debounce for consecutive ads.
+ *
+ * Prefer stable `data-a-target` markers: the ad UI is rendered by
+ * `VideoAdOverlay` / `VideoAdBanner` / `AdCountdownProgressBar`, and their
+ * `data-a-target` values survive Twitch deploys (unlike hashed class names).
+ *
+ * - `video-ad-label` / `video-ad-countdown`: the black top ad bar (desktop player).
+ * - `ad-countdown-progress-bar`: thin ad progress bar rendered instead of the
+ *   black bar on TV / mobile-wrapped players (`isMobileWeb` branch). This is the
+ *   "ad playing without the top bar" case that used to slip through.
+ * - `ad-banner-default-text` / `player-ad-countdown`: legacy banner variants.
+ * - `spectating-ad-banner`: ads shown while spectating another channel.
+ * - Class selectors below are legacy fallbacks for older player builds.
+ */
 const AD_SIGNAL_SELECTORS = [
-  '.r-2dbvay',
-  '[data-a-target="player-ad-countdown"]',
   '[data-a-target="video-ad-label"]',
-  '[data-a-target="spectating-ad-banner"]'
+  '[data-a-target="video-ad-countdown"]',
+  '[data-a-target="ad-countdown-progress-bar"]',
+  '[data-test-selector="ad-banner-default-text"]',
+  '[data-a-target="player-ad-countdown"]',
+  '[data-a-target="spectating-ad-banner"]',
+  '.player-ad-overlay',
+  '.video-player__ad--overlay',
+  '.r-2dbvay'
 ];
 /** No ad UI for this long after the last signal before restoring playback. */
 const AD_END_HOLD_MS = 3000;
