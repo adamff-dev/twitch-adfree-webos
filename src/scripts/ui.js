@@ -18,7 +18,7 @@ import {
   CHAT_OVERLAY_HEIGHT,
   CHAT_OVERLAY_FONT_SIZE,
   CHAT_OVERLAY_TRANSPARENCY,
-  CUSTOM_PROXY_URL,
+  PROXY_SERVER_KEYS,
   ACTION_RESET_CONFIG
 } from '../constants/config.constants.js';
 
@@ -211,8 +211,8 @@ function createConfigCheckbox(key) {
     }
   });
 
-  // Special handling for CUSTOM_PROXY_URL
-  if (key === CUSTOM_PROXY_URL) {
+  // Special handling for the proxy server fields (full-width text inputs)
+  if (PROXY_SERVER_KEYS.includes(key)) {
     const container = document.createElement('div');
     container.classList.add('taf-config-item');
 

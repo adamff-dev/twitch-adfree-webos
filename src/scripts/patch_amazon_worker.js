@@ -1,4 +1,5 @@
 // Source: https://github.com/besuper/TwitchNoSub
+/* global useProxy, proxyServers */
 
 let resolutions = {
   '160p30': {
@@ -101,35 +102,16 @@ async function isValidQuality(url) {
 }
 
 /**
- * Builds the final HLS URL from the user-configured proxy template.
+ * Merges the original request query string into `target`, keeping any query
+ * parameters the target already defines.
  *
- * Supported placeholders:
- *   $channel / {channel} - the channel login.
- *   $url / {url}         - the full original URL, query string included.
- *
- * Twitch's access token/signature travel in the request query string. A plain
- * "pass-through" proxy (e.g. `https://myproxy.tld/https://usher.ttvnw.net/...`)
- * forwards that URL to usher, so those parameters must survive the rewrite.
- * If the template does not already contain them (no `$url` placeholder and no
- * `token` param), the missing original query parameters are merged in.
- * Without this the proxy receives an unauthenticated request and usher replies
- * with HTTP 403, which made the custom proxy appear to "do nothing".
- *
- * @param {string} template Configured proxy URL template.
+ * @param {string} target Rewritten URL (may already contain a query string).
  * @param {string} originalUrl Original Twitch playlist request URL.
- * @param {string} channel Channel login extracted from the original URL.
- * @returns {string} URL to request instead of the original one.
+ * @returns {string} Target with the missing original query parameters added.
  */
-function applyProxyTemplate(template, originalUrl, channel) {
-  const usesFullUrl = template.includes('$url') || template.includes('{url}');
-
-  let target = template.split('$url').join(originalUrl);
-  target = target.split('{url}').join(originalUrl);
-  target = target.split('$channel').join(channel);
-  target = target.split('{channel}').join(channel);
-
+function mergeOriginalQuery(target, originalUrl) {
   const originalQuery = new URL(originalUrl).search.replace(/^\?/, '');
-  if (usesFullUrl || originalQuery === '') {
+  if (originalQuery === '') {
     return target;
   }
 
@@ -158,6 +140,57 @@ function applyProxyTemplate(template, originalUrl, channel) {
   ].join('&');
 
   return (mergedQuery === '' ? base : `${base}?${mergedQuery}`) + hash;
+}
+
+/**
+ * Builds the final HLS URL for one configured proxy server.
+ *
+ * A server can be either:
+ *   - a URL-prefix proxy (the default), e.g. `https://proxy4.rte.net.ru/`: the
+ *     full original URL (query string included) is appended after the base;
+ *   - a template using `$url` / `{url}` (full original URL) or `$channel` /
+ *     `{channel}` (channel login).
+ *
+ * Twitch's access token/signature travel in the request query string. For
+ * templates the missing original query parameters are merged in unless the
+ * template already carries them (or uses a `$url` placeholder). Without this a
+ * pass-through proxy receives an unauthenticated request and usher replies with
+ * HTTP 403, which made the proxy appear to "do nothing".
+ *
+ * @param {string} server Configured proxy server (prefix base or template).
+ * @param {string} originalUrl Original Twitch playlist request URL.
+ * @param {string} channel Channel login extracted from the original URL.
+ * @returns {string} URL to request instead of the original one.
+ */
+function buildProxiedUrl(server, originalUrl, channel) {
+  const trimmed = server.trim();
+
+  if (trimmed.includes('$url') || trimmed.includes('{url}')) {
+    return trimmed
+      .split('$url')
+      .join(originalUrl)
+      .split('{url}')
+      .join(originalUrl);
+  }
+
+  if (trimmed.includes('$channel') || trimmed.includes('{channel}')) {
+    const target = trimmed
+      .split('$channel')
+      .join(channel)
+      .split('{channel}')
+      .join(channel);
+    return mergeOriginalQuery(target, originalUrl);
+  }
+
+  // URL-prefix proxy: append the full target URL after the base.
+  if (!trimmed.includes('.m3u8')) {
+    return trimmed.endsWith('/')
+      ? trimmed + originalUrl
+      : `${trimmed}/${originalUrl}`;
+  }
+
+  // Legacy full-URL template (e.g. https://proxy.tld/https://usher...): merge token.
+  return mergeOriginalQuery(trimmed, originalUrl);
 }
 
 const oldFetch = self.fetch;
@@ -190,39 +223,47 @@ self.fetch = async function (input, opt) {
     return;
   }
 
-  // Redirect live HLS playlist requests to the configured proxy template
-  if (url.includes('.m3u8') && url.includes('usher.ttvnw.net')) {
-    // Check if custom HLS URL is enabled in config
+  // Redirect live HLS playlist requests through the configured proxy servers.
+  // `useProxy`/`proxyServers` are injected from twitch_no_sub.js, as this worker
+  // cannot access the extension config directly.
+  const proxyList = useProxy && Array.isArray(proxyServers) ? proxyServers : [];
+
+  if (
+    proxyList.length > 0 &&
+    url.includes('.m3u8') &&
+    url.includes('usher.ttvnw.net')
+  ) {
     try {
-      // Note: useProxy defined in twitch_no_sub.js as this worker cannot access config directly
-      // eslint-disable-next-line no-undef
-      if (useProxy) {
-        const urlObj = new URL(url);
-        // /api/channel/hls/{channel}.m3u8 or /api/v2/channel/hls/{channel}.m3u8
-        const channelMatch = urlObj.pathname.match(
-          /\/api\/(?:v2\/)?channel\/hls\/([^.]+)\.m3u8/
-        );
+      const urlObj = new URL(url);
+      // /api/channel/hls/{channel}.m3u8 or /api/v2/channel/hls/{channel}.m3u8
+      const channelMatch = urlObj.pathname.match(
+        /\/api\/(?:v2\/)?channel\/hls\/([^.]+)\.m3u8/
+      );
 
-        if (channelMatch && channelMatch[1]) {
-          const channel = channelMatch[1];
-          const proxyUrlTemplate =
-            // Note: proxyUrl defined in twitch_no_sub.js as this worker cannot access config directly
-            // eslint-disable-next-line no-undef
-            proxyUrl ||
-            'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8';
-          const newUrl = applyProxyTemplate(proxyUrlTemplate, url, channel);
+      if (channelMatch && channelMatch[1]) {
+        const channel = channelMatch[1];
 
-          // Reconstruct Request if needed
-          if (input instanceof Request) {
-            input = new Request(newUrl, input);
-          } else {
-            input = newUrl;
+        // Try each proxy server in order, falling back to the next one when a
+        // server fails. If every server fails, fall through to the direct URL.
+        for (const server of proxyList) {
+          const newUrl = buildProxiedUrl(server, url, channel);
+          const request =
+            input instanceof Request ? new Request(newUrl, input) : newUrl;
+
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            const proxied = await oldFetch(request, opt);
+            if (proxied && proxied.ok) {
+              return proxied;
+            }
+          } catch (e) {
+            console.warn('Proxy server failed, trying next:', server, e);
           }
         }
       }
     } catch (e) {
-      // Silently fail if config reading fails
-      console.warn('Failed to read config for custom HLS URL', e);
+      // Silently fail and use the direct URL if anything goes wrong
+      console.warn('Failed to build proxy URL for HLS streaming', e);
     }
   }
 

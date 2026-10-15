@@ -1,27 +1,36 @@
 import {
   CONFIG_KEY,
-  CUSTOM_PROXY_URL,
+  PROXY_SERVER_1,
   configOptions
 } from './constants/config.constants';
 
+// The single `customProxyUrl` config was replaced by up to 5 `proxyServerN` slots.
+const LEGACY_CUSTOM_PROXY_URL_KEY = 'customProxyUrl';
 const LEGACY_LUMINOUS_CUSTOM_PROXY =
   'https://as.luminous.dev/live/$channel?allow_source=true&allow_audio_only=true&fast_bread=true';
-const REPLACEMENT_USHER_CUSTOM_PROXY =
+const LEGACY_USHER_CUSTOM_PROXY =
   'https://usher.ttvnw.net/api/v2/channel/hls/$channel.m3u8';
 
 function migrateLegacyCustomProxyUrl(parsed) {
   if (!parsed || typeof parsed !== 'object') {
     return false;
   }
-  const raw = parsed[CUSTOM_PROXY_URL];
+  const raw = parsed[LEGACY_CUSTOM_PROXY_URL_KEY];
   if (typeof raw !== 'string') {
     return false;
   }
-  if (raw.trim() === LEGACY_LUMINOUS_CUSTOM_PROXY) {
-    parsed[CUSTOM_PROXY_URL] = REPLACEMENT_USHER_CUSTOM_PROXY;
-    return true;
+
+  // Only carry over a user-provided value; the old defaults are dropped.
+  const value = raw.trim();
+  const wasDefault =
+    value === '' ||
+    value === LEGACY_LUMINOUS_CUSTOM_PROXY ||
+    value === LEGACY_USHER_CUSTOM_PROXY;
+  if (!wasDefault && !parsed[PROXY_SERVER_1]) {
+    parsed[PROXY_SERVER_1] = raw;
   }
-  return false;
+  delete parsed[LEGACY_CUSTOM_PROXY_URL_KEY];
+  return true;
 }
 
 const defaultConfig = (() => {

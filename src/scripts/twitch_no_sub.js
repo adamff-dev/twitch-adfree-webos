@@ -1,6 +1,7 @@
 import { configRead } from '../config';
 import {
-  CUSTOM_PROXY_URL,
+  MAX_PROXY_SERVERS,
+  PROXY_SERVER_KEYS,
   USE_CUSTOM_PROXY
 } from '../constants/config.constants';
 import { APP_VERSION } from '../constants/global.constants';
@@ -28,13 +29,16 @@ const patchAmazonWorkerUrl =
       );
 
       const useProxy = configRead(USE_CUSTOM_PROXY);
-      const proxyUrl = configRead(CUSTOM_PROXY_URL);
+      const proxyServers = PROXY_SERVER_KEYS.map((key) => configRead(key))
+        .filter((value) => typeof value === 'string' && value.trim() !== '')
+        .map((value) => value.trim())
+        .slice(0, MAX_PROXY_SERVERS);
 
       const blobUrl = URL.createObjectURL(
         new Blob([
           `
             useProxy = ${JSON.stringify(useProxy)};
-            proxyUrl = ${JSON.stringify(proxyUrl)};
+            proxyServers = ${JSON.stringify(proxyServers)};
 
             importScripts(
               '${patchAmazonWorkerUrl}',
