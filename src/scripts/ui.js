@@ -64,6 +64,9 @@ const latestVideo = 'nav[role="navigation"] + main video';
 
 const HOME_SELECTOR = 'a[href="/"]';
 const LOGIN_SELECTOR = 'a[href="/login"]';
+/** Twitch's own collapse/expand button for the chat (right column). */
+const CHAT_TOGGLE_SELECTOR =
+  '[data-a-target="right-column__toggle-collapse-btn"]';
 const FOLLOWING_SELECTOR = 'a[href="/following"]';
 const DIRECTORY_SELECTOR = 'a[href="/directory"]';
 const SEARCH_SELECTOR = 'a[href="/search"]';
@@ -465,6 +468,17 @@ function showOptionsPanel(visible) {
 
 window.taf_showOptionsPanel = showOptionsPanel;
 
+/**
+ * Toggles chat visibility by clicking Twitch's own collapse/expand button,
+ * so the real chat state is toggled (rather than just hiding the chat element).
+ */
+function toggleTwitchChat() {
+  const toggleButton = document.querySelector(CHAT_TOGGLE_SELECTOR);
+  if (toggleButton) {
+    toggleButton.click();
+  }
+}
+
 function handleNumberButtonsClick(keyCode) {
   const buttonSelector = document.querySelector(LOGIN_SELECTOR)
     ? LOGGED_OUT_NAVIGATION_MAP[keyCode]
@@ -490,6 +504,16 @@ const eventHandler = (evt) => {
     if (evt.type === 'keydown') {
       // Toggle visibility.
       showOptionsPanel(!optionsPanelVisible);
+    }
+    return false;
+  }
+
+  if (getKeyColor(evt.keyCode) === 'yellow') {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    if (evt.type === 'keydown') {
+      toggleTwitchChat();
     }
     return false;
   }
