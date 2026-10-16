@@ -11,7 +11,8 @@
 
 import { configRead } from '../config';
 import {
-  CUSTOM_PROXY_URL,
+  MAX_PROXY_SERVERS,
+  PROXY_SERVER_KEYS,
   USE_CUSTOM_PROXY
 } from '../constants/config.constants';
 
@@ -214,42 +215,140 @@ function abortSilently(xhr) {
   });
 }
 
+function getProxyServers() {
+  return PROXY_SERVER_KEYS.map((key) => configRead(key))
+    .filter((value) => typeof value === 'string' && value.trim() !== '')
+    .map((value) => value.trim())
+    .slice(0, MAX_PROXY_SERVERS);
+}
+
+// Mirror of patch_amazon_worker.js: Twitch's access token/signature live in the
+// query string, so templates using $channel/{channel} must carry the original
+// parameters over or the proxy receives an unauthenticated request.
+function mergeOriginalQuery(target, originalUrl) {
+  const originalQuery = new URL(originalUrl).search.replace(/^\?/, '');
+  if (originalQuery === '') {
+    return target;
+  }
+
+  const hashAt = target.indexOf('#');
+  const hash = hashAt === -1 ? '' : target.slice(hashAt);
+  const withoutHash = hashAt === -1 ? target : target.slice(0, hashAt);
+  const queryAt = withoutHash.indexOf('?');
+  const base = queryAt === -1 ? withoutHash : withoutHash.slice(0, queryAt);
+  const templateQuery = queryAt === -1 ? '' : withoutHash.slice(queryAt + 1);
+
+  const presentKeys = new Set(
+    templateQuery
+      .split('&')
+      .filter(Boolean)
+      .map((param) => param.split('=')[0])
+  );
+
+  const carried = originalQuery
+    .split('&')
+    .filter(Boolean)
+    .filter((param) => !presentKeys.has(param.split('=')[0]));
+
+  const mergedQuery = [
+    ...templateQuery.split('&').filter(Boolean),
+    ...carried
+  ].join('&');
+
+  return (mergedQuery === '' ? base : `${base}?${mergedQuery}`) + hash;
+}
+
+function buildProxiedUrl(server, originalUrl, channel) {
+  const trimmed = server.trim();
+
+  if (trimmed.includes('$url') || trimmed.includes('{url}')) {
+    return trimmed
+      .split('$url')
+      .join(originalUrl)
+      .split('{url}')
+      .join(originalUrl);
+  }
+
+  if (trimmed.includes('$channel') || trimmed.includes('{channel}')) {
+    const target = trimmed
+      .split('$channel')
+      .join(channel)
+      .split('{channel}')
+      .join(channel);
+    return mergeOriginalQuery(target, originalUrl);
+  }
+
+  if (!trimmed.includes('.m3u8')) {
+    return trimmed.endsWith('/')
+      ? trimmed + originalUrl
+      : `${trimmed}/${originalUrl}`;
+  }
+
+  return mergeOriginalQuery(trimmed, originalUrl);
+}
+
+function isLivePlaylistUrl(url) {
+  return (
+    url.includes('.m3u8') &&
+    url.includes('usher.ttvnw.net/api/') &&
+    url.includes('/channel/hls/')
+  );
+}
+
+async function proxyLivePlaylist(xhr, originalUrl, fallback) {
+  let servers = [];
+  let channel = null;
+
+  try {
+    if (configRead(USE_CUSTOM_PROXY)) {
+      servers = getProxyServers();
+    }
+
+    const channelMatch = new URL(originalUrl).pathname.match(
+      /\/channel\/hls\/([^.]+)\.m3u8/
+    );
+    if (channelMatch) {
+      channel = channelMatch[1];
+    }
+  } catch (e) {
+    console.warn('[TAF] Failed to read proxy config for luminous playback', e);
+  }
+
+  if (channel && servers.length > 0) {
+    for (const server of servers) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const response = await fetch(
+          buildProxiedUrl(server, originalUrl, channel)
+        );
+
+        if (response.ok) {
+          // eslint-disable-next-line no-await-in-loop
+          const playlistBody = await response.text();
+          respondWith(
+            xhr,
+            response.status,
+            playlistBody,
+            'application/vnd.apple.mpegurl'
+          );
+          return;
+        }
+      } catch (e) {
+        console.warn('[TAF] Proxy server failed for live playback', server, e);
+      }
+    }
+  }
+
+  fallback();
+}
+
 export function installUsherXhrPatch() {
   const oldXHR = window.XMLHttpRequest;
 
   window.XMLHttpRequest = class extends oldXHR {
     open(method, url, ...rest) {
-      let finalUrl = url;
-
-      // Redirect live HLS playlist requests through the custom proxy.
-      // Matches both the legacy /api/channel/hls/ and current /api/v2/channel/hls/ paths.
-      if (
-        typeof finalUrl === 'string' &&
-        finalUrl.includes('.m3u8') &&
-        finalUrl.includes('usher.ttvnw.net/api/') &&
-        finalUrl.includes('/channel/hls/')
-      ) {
-        try {
-          if (configRead(USE_CUSTOM_PROXY)) {
-            const urlObj = new URL(finalUrl);
-            const channelMatch = urlObj.pathname.match(
-              /\/channel\/hls\/([^.]+)\.m3u8/
-            );
-
-            if (channelMatch && channelMatch[1]) {
-              const channel = channelMatch[1];
-              const proxyUrlTemplate = configRead(CUSTOM_PROXY_URL);
-
-              finalUrl = proxyUrlTemplate.replace('$channel', channel);
-            }
-          }
-        } catch (e) {
-          console.warn('[TAF] Failed to read config for luminous playback', e);
-        }
-      }
-
-      this._tafUrl = finalUrl;
-      return super.open(method, finalUrl, ...rest);
+      this._tafUrl = url;
+      return super.open(method, url, ...rest);
     }
 
     send(body) {
@@ -262,6 +361,13 @@ export function installUsherXhrPatch() {
       // Block Sentry telemetry
       if (url.includes('ingest.sentry.io')) {
         abortSilently(this);
+        return;
+      }
+
+      // Redirect live HLS playlist requests through the configured proxy
+      // servers, falling back to the next one and finally to the direct URL.
+      if (isLivePlaylistUrl(url)) {
+        proxyLivePlaylist(this, url, () => super.send(body));
         return;
       }
 
@@ -293,12 +399,7 @@ export function installUsherXhrPatch() {
         buildFakeVodPlaylist(vodId)
           .then((playlist) => {
             if (playlist) {
-              respondWith(
-                this,
-                200,
-                playlist,
-                'application/vnd.apple.mpegurl'
-              );
+              respondWith(this, 200, playlist, 'application/vnd.apple.mpegurl');
             } else {
               super.send(body);
             }
