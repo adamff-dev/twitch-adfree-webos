@@ -1,5 +1,12 @@
 # Twitch AdFree
 
+> [!WARNING]
+> **This version is no longer maintained.** There will be no more updates or fixes for Twitch AdFree.
+>
+> Please use **[Twitch Lite](https://github.com/adamff-dev/twitch-lite-webos)** instead: a new, independent Twitch client for LG webOS TVs that is better in performance and features. It is much lighter (a single small page with no frameworks, built for entry-level TVs) and has more features, such as a synchronized chat replay for past broadcasts, resuming where you left a video, live alerts when a channel you follow goes live, FrankerFaceZ emotes on top of Twitch, 7TV and BetterTTV, restoring the audio of muted VOD segments, and a QR sign-in.
+>
+> Download it from the [latest release](https://github.com/adamff-dev/twitch-lite-webos/releases/latest).
+
 A webOS application that enhances your Twitch viewing experience by blocking ads, automatically claiming channel points, bypassing subscriber-only VOD restrictions, and providing additional features like emote support and improved chat styles.
 
 Based on [youtube-webos](https://github.com/webosbrew/youtube-webos)
